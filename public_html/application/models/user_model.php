@@ -31,15 +31,13 @@ Class User_model extends CI_Model
 		}
 	}
 
-	function register($email,$name,$dob,$password) {
+	function register($email,$name,$password) {
 		$random_salt = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), true));
 		// Create salted password
 		$hpassword = hash('sha512', $password.$random_salt);
-		$dob_formatted = date("Y-m-d",strtotime($dob));
 		$newuser = array(
 			'email'=>$email,
 			'name'=>$name,
-			'dob'=>$dob_formatted,
 			'password'=>$hpassword,
 			'salt'=>$random_salt,
 			'setup'=>0
@@ -49,6 +47,10 @@ Class User_model extends CI_Model
 		} else {
 			return FALSE;
 		}
+	}
+	
+	function setup($id,$dob,$gender,$height,$armspan,$weight,$clubs) {
+		
 	}
 
 	function get_by_id($id) {

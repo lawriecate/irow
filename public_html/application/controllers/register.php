@@ -7,7 +7,7 @@ class Register extends CI_Controller {
 	   parent::__construct();
 	   $this->load->model('user_model');
 	}
-
+	
 	public function index()
 	{
 		if($this->l_auth->logged_in() ) {
@@ -19,7 +19,7 @@ class Register extends CI_Controller {
 
 		$this->form_validation->set_rules('email', 'Email', 'email|trim|required|xss_clean|is_unique[users.email]');
 		$this->form_validation->set_rules('name', 'Name', 'trim|required|xss_clean');
-		$this->form_validation->set_rules('dob', 'Date Of Birth', 'trim|required|xss_clean|callback__dobcheck');
+		//$this->form_validation->set_rules('dob', 'Date Of Birth', 'trim|required|xss_clean|callback__dobcheck');
 	   	$this->form_validation->set_rules('password', 'Password', 'trim|required|xss_clean');
 	   	$this->form_validation->set_rules('password2', 'Confirmation Password', 'trim|required|xss_clean|matches[password]');
 	   	$this->form_validation->set_rules('tosconsent', 'Terms Of Service Agreement', 'callback__accept_terms');
@@ -39,9 +39,9 @@ class Register extends CI_Controller {
 			$email = $this->input->post('email');
 			$name = $this->input->post('name');
 			$password = $this->input->post('password');
-			$dob = $this->input->post('dob');
+			//$dob = $this->input->post('dob');
 
-			$registration = $this->user_model->register($email,$name,$dob,$password);
+			$registration = $this->user_model->register($email,$name,$password);
 			if($registration) {
 				// registered succesfully
 				$this->load->view('templates/header');
@@ -75,6 +75,13 @@ class Register extends CI_Controller {
 			return checkdate($month,$day,$year);
 		}
 		return FALSE;
+	}
+	
+	public function setup()
+	{
+		$this->load->view('templates/header');
+		$this->load->view('auth/register_success',$data);
+		$this->load->view('templates/footer');
 	}
 }
 

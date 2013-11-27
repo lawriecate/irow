@@ -26,29 +26,6 @@
 			  	</div>
 			  </div>
 			  <div class="form-group">
-			    <label class="col-lg-2 control-label" for="inputDob">Date Of Birth</label>
-			    <div class="col-lg-10">
-			      <input type="date" class="form-control" id="inputDob" name="dob" placeholder="00-00-0000">
-			    </div>
-			  </div>
-			  <div class="form-group">
-			    <label class="col-lg-2 control-label" for="inputDob">Gender</label>
-			    <div class="col-lg-10">
-			      <div class="radio">
-					  <label>
-					    <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
-					    Male
-					  </label>
-					</div>
-					<div class="radio">
-					  <label>
-					    <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
-					    Female
-					  </label>
-					</div>
-			    </div>
-			  </div>
-			  <div class="form-group">
 			    <label class="col-lg-2 control-label" for="inputPassword">Password</label>
 			    <div class="col-lg-10">
 			      <input type="password" class="form-control" id="inputPassword" name="password" placeholder="Password">
