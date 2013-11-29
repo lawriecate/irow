@@ -44,6 +44,7 @@ class Register extends CI_Controller {
 			$registration = $this->user_model->register($email,$name,$password);
 			if($registration) {
 				// registered succesfully
+				$this->user_model->login($email,$password);
 				$this->load->view('templates/header');
 				$this->load->view('auth/register_success',$data);
 				$this->load->view('templates/footer');
@@ -68,6 +69,7 @@ class Register extends CI_Controller {
 		$this->form_validation->set_message('_dobcheck', 'The date you entered is not valid');
 		$input = $this->input->post('dob');
 		$time = strtotime($input);
+		
 		if($time) {
 			$year = date("Y",$time);
 			$month = date("m",$time);
@@ -77,11 +79,43 @@ class Register extends CI_Controller {
 		return FALSE;
 	}
 	
+	function _gendercheck() {
+		$this->form_validation->set_message('_gendercheck', 'The gender you entered is not valid');
+		$input = $this->input->post('gender');
+		if($input == "m" or $input == "f") {
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+		
+	}
+	
 	public function setup()
 	{
-		$this->load->view('templates/header');
-		$this->load->view('auth/register_success',$data);
-		$this->load->view('templates/footer');
+		if(!$this->l_auth->logged_in() ) {
+			redirect('/login');
+		}
+		$this->load->helper(array('form'));
+		
+		$this->form_validation->set_rules('dob', 'Date Of Birth', 'trim|required|xss_clean|callback__dobcheck');
+		$this->form_validation->set_rules('gender', 'Gender', 'trim|required|xss_clean|callback__gendercheck');
+		//$this->form_validation->set_rules('height', 'Height', 'is_int');
+
+	   	// 
+		if($this->form_validation->run() == FALSE)
+		{
+			// show form + errors
+		    $this->load->view('templates/header');
+			$this->load->view('auth/register_success',$data);
+			$this->load->view('templates/footer');
+		}
+		else
+		{
+			$this->load->library('form_validation');
+			$this->load->view('templates/header');
+			$this->load->view('auth/register_success',$data);
+			$this->load->view('templates/footer');
+		}
 	}
 }
 

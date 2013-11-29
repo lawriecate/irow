@@ -41,8 +41,8 @@
             <li class="active"><a href="<?= base_url() ?>diary">Diary</a></li>
             <li><a href="<?= base_url() ?>coach">Coach</a></li>
             <li class="dropdown">
-              <a href="<?= base_url() ?>club" <?/*class="dropdown-toggle" data-toggle="dropdown"*/?>>Club</b></a>
-              <?/*<ul class="dropdown-menu">
+              <a href="<?= base_url() ?>club" class="dropdown-toggle" data-toggle="dropdown">Club <b class="caret"></b></a>
+              <ul class="dropdown-menu">
                 <li><a href="#">Action</a></li>
                 <li><a href="#">Another action</a></li>
                 <li><a href="#">Something else here</a></li>
@@ -50,13 +50,13 @@
                 <li class="dropdown-header">Nav header</li>
                 <li><a href="#">Separated link</a></li>
                 <li><a href="#">One more separated link</a></li>
-              </ul>*/?>
+              </ul>
             </li>
             <li class="dropdown">
               <a href="<?= base_url() ?>admin" class="dropdown-toggle" data-toggle="dropdown">Admin <b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li><a href="<?= base_url() ?>admin/userlist">Manage Users</a></li>
-                <li><a href="<?= base_url() ?>admin/clublist">Manage Clubs</a></li>
+                <li><a href="#">Manage Users</a></li>
+                <li><a href="#">Manage Clubs</a></li>
               </ul>
             </li>
           </ul>

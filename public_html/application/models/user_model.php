@@ -48,10 +48,6 @@ Class User_model extends CI_Model
 			return FALSE;
 		}
 	}
-	
-	function setup($id,$dob,$gender,$height,$armspan,$weight,$clubs) {
-		
-	}
 
 	function get_by_id($id) {
 		$query = $this->db->get_where('users',array('id'=>$id));

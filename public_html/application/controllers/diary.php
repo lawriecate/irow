@@ -27,14 +27,6 @@ class Diary extends Secure_Controller {
 		
 	}
 
-	public function view()
-	{
-		//$this->load->view('templates/header');
-
-		$this->load->view('diary/view');
-//this->load->view('templates/footer');
-	}
-
 	public function add()
 	{
 		$this->load->helper(array('form'));
@@ -47,7 +39,7 @@ class Diary extends Secure_Controller {
 		else
 		{
 			// lookup type, then setup insert
-			$type = $this->activity_model->getTypeByRef($this->input->post('inputType'));
+			$type = $this->input->post('inputType');
 			$c0 = array(
 
 	     				'distance'=>$this->input->post('inputDistance'),
@@ -60,7 +52,7 @@ class Diary extends Secure_Controller {
 	     		$this->input->post('inputDate'),
 	     		$this->l_auth->current_user_id(),
 	     		$this->l_auth->current_user_id(),
-	     		$type,
+	     		$this->input->post('inputType'),
 	     		array($c0)	,
 	     		$this->input->post('inputNotes')
 	     		);

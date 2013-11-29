@@ -37,13 +37,11 @@ Class Activity_model extends CI_Model
 	}
 
 	function list_activities($start,$end,$user) {
-		$this->db->order_by("sort_time", "asc") ;	
 		$query = $this->db->get_where('activities', array(
 			'user' => $user,
 			'sort_time >= ' => date("Y-m-d H:i:s",($start)),
 			'sort_time <= ' => date("Y-m-d H:i:s",($end))
 		));
-		
 		return $query->result_array();
 		//echo date("Y-m-d H:i:s",($start)) . '<br> ' . date("Y-m-d H:i:s",($end));
 	}
@@ -134,16 +132,6 @@ Class Activity_model extends CI_Model
 			$types[$row['group']][] = $row;	
 		}
 		return $types;
-	}
-
-	function getTypeByRef($ref) {
-		$query = $this->db->get_where('activities_types',array('value'=>$ref));
-		$result = $query->row_array();
-		if($result) {
-			return $result['id'];
-		} else {
-			return FALSE;
-		}
 	}
 
 	private function time_to_seconds($time) {

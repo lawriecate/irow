@@ -22,7 +22,7 @@
           	<div class="group">
           	<? foreach($this_week as $activity): ?>
 			  <div class="excard">
-			  	<a href="<?=base_url()?>/diary/view/<?=$activity['ref']?>/" data-target="#viewWorkoutModal" data-toggle="modal" ><h3><?= $activity['label']?></h3>
+			  	<a href="#view_<?= $activity['ref']?>"><h3><?= $activity['label']?></h3>
 			  	<p><?= date("D j", strtotime($activity['sort_time'])) ?></p></a>
 			  </div>
 			<? endforeach; ?>
@@ -40,26 +40,6 @@
 	</div>
 </div>
 <!-- Modal -->
-
-
-<div class="modal fade" id="viewWorkoutModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button id="showAddForm" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">View Log</h4>
-        </div>
-        <div class="modal-body">
-        	<p>RECORD:</p>
-        	<p></p>
-          </div>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div><!-- /.modal -->
-	
-
-
-
   <div class="modal fade" id="newWorkoutModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -310,12 +290,6 @@ hours = Math.floor(init / 3600);
 	  		
 	  	}
   	}
-
-  	//////////////////////////////////////////////////////////
-  	// view exercise code
-
-  
-
   });
   </script>
  
