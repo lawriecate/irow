@@ -33,4 +33,18 @@ Class Activity_model extends CI_Model
 			$this->db->insert('measurements_weights',$row);
 	}
 
+	function get_height($id)
+	{
+
+	}
+
+	function get_armspan($id)
+	{
+
+	}
+
+	function get_weight($id)
+	{
+		
+	}
 }
