@@ -5,7 +5,7 @@ Class Activity_model extends CI_Model
 {
 	function add($date,$person,$by,$type,$components,$notes)
 	{
-		echo 'hi';
+		//echo 'hi';
 		$eref = uniqid();
 
 		$row = array(
@@ -19,7 +19,7 @@ Class Activity_model extends CI_Model
 					'component_count' => count($components),
 					'notes' => $notes
 				);
-		print_r($row);
+		//print_r($row);
 			$this->db->insert('activities',$row);
 
 		// calculate statistics if components present
@@ -37,11 +37,13 @@ Class Activity_model extends CI_Model
 	}
 
 	function list_activities($start,$end,$user) {
+		$this->db->order_by("sort_time", "asc") ;	
 		$query = $this->db->get_where('activities', array(
 			'user' => $user,
 			'sort_time >= ' => date("Y-m-d H:i:s",($start)),
 			'sort_time <= ' => date("Y-m-d H:i:s",($end))
 		));
+		
 		return $query->result_array();
 		//echo date("Y-m-d H:i:s",($start)) . '<br> ' . date("Y-m-d H:i:s",($end));
 	}
@@ -118,6 +120,11 @@ Class Activity_model extends CI_Model
 		$components['avgRate'] = round(($totalRate / count($component_ids)),1);
 		return $components;
 	}
+	
+	public function get($ref) {
+		$query =  $this->db->get_where('activities',array('ref'=>$ref));
+		return $query->row_array();
+	}
 
 	function delete($id)
 	{
@@ -132,6 +139,16 @@ Class Activity_model extends CI_Model
 			$types[$row['group']][] = $row;	
 		}
 		return $types;
+	}
+
+	function getTypeByRef($ref) {
+		$query = $this->db->get_where('activities_types',array('value'=>$ref));
+		$result = $query->row_array();
+		if($result) {
+			return $result['id'];
+		} else {
+			return FALSE;
+		}
 	}
 
 	private function time_to_seconds($time) {

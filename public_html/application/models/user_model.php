@@ -48,8 +48,8 @@ Class User_model extends CI_Model
 			return FALSE;
 		}
 	}
-
-	function setup($id,$dob,$gender,$height,$armspan,$weight,$clubid) {
+	
+	function setup($id,$dob,$gender,$height,$armspan,$weight,$clubs) {
 		
 	}
 

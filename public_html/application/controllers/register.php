@@ -89,35 +89,6 @@ class Register extends CI_Controller {
 		}
 		
 	}
-
-	function _heightcheck() {
-		return $this->_measurementcheck('height','Height',120,200);
-	}
-
-	function _weightcheck() {
-		return $this->_measurementcheck('weight','Weight',40,200,TRUE);
-	}
-
-	function _armspancheck() {
-		return $this->_measurementcheck('armspan','Arm Span',50,300);
-	}
-
-	function _measurementcheck($post,$label,$min,$max,$decimal=FALSE) {
-		$input = $this->input->post($post);
-		$this->form_validation->set_message('_' . $post . 'check', 'The ' . $label . ' you enter should be a number inbetween ' . $min .  ' and ' . $max);
-		if($decimal == TRUE) {
-			if(!is_numeric($input)) {
-				return FALSE;
-			}
-		} else {
-			if(!ctype_digit($input)) {
-				return FALSE;
-			}
-		}
-		if(($input<$min) OR ( $input > $max) ) {
-			return FALSE;
-		}
-	}
 	
 	public function setup()
 	{
@@ -125,27 +96,24 @@ class Register extends CI_Controller {
 			redirect('/login');
 		}
 		$this->load->helper(array('form'));
-		
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('dob', 'Date Of Birth', 'trim|required|xss_clean|callback__dobcheck');
 		$this->form_validation->set_rules('gender', 'Gender', 'trim|required|xss_clean|callback__gendercheck');
-		$this->form_validation->set_rules('height', 'Height', 'required|callback__heightcheck');
-		$this->form_validation->set_rules('weight', 'Weight', 'required|callback__weightcheck');
-		$this->form_validation->set_rules('armspan', 'Arm Span', 'required|callback__armspancheck');
+		$this->form_validation->set_rules('height', 'Height', 'is_int');
 
 	   	// 
 		if($this->form_validation->run() == FALSE)
 		{
 			// show form + errors
 		    $this->load->view('templates/header');
-			$this->load->view('auth/register_success');
+			$this->load->view('auth/register_success',$data);
 			$this->load->view('templates/footer');
 		}
 		else
 		{
 			$this->load->library('form_validation');
 			$this->load->view('templates/header');
-			$this->load->view('auth/register_success');
+			$this->load->view('auth/register_success',$data);
 			$this->load->view('templates/footer');
 		}
 	}

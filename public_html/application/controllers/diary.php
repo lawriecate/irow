@@ -27,6 +27,19 @@ class Diary extends Secure_Controller {
 		
 	}
 
+	public function view($ref)
+	{
+		//$this->load->view('templates/header');
+		$exercise = $this->activity_model->get($ref);
+		if($exercise == FALSE) {
+			return FALSE; 
+		} else {
+			$data['exercise'] = $exercise;
+			$this->load->view('diary/view',$data);
+		}
+//this->load->view('templates/footer');
+	}
+
 	public function add()
 	{
 		$this->load->helper(array('form'));
@@ -39,7 +52,7 @@ class Diary extends Secure_Controller {
 		else
 		{
 			// lookup type, then setup insert
-			$type = $this->input->post('inputType');
+			$type = $this->activity_model->getTypeByRef($this->input->post('inputType'));
 			$c0 = array(
 
 	     				'distance'=>$this->input->post('inputDistance'),
@@ -52,7 +65,7 @@ class Diary extends Secure_Controller {
 	     		$this->input->post('inputDate'),
 	     		$this->l_auth->current_user_id(),
 	     		$this->l_auth->current_user_id(),
-	     		$this->input->post('inputType'),
+	     		$type,
 	     		array($c0)	,
 	     		$this->input->post('inputNotes')
 	     		);
@@ -64,6 +77,33 @@ class Diary extends Secure_Controller {
 		$this->load->view('templates/header');
 		$this->load->view('diary/addmeasurement');
 		$this->load->view('templates/footer');
+	}
+	
+	public function ajax_logexercise() {
+		$this->load->helper(array('form'));
+		$this->load->library('form_validation');
+		// lookup type, then setup insert
+			$type = $this->activity_model->getTypeByRef($this->input->post('inputType'));
+			$c0 = array(
+
+	     				'distance'=>$this->input->post('inputDistance'),
+	     				'time'=>$this->input->post('inputTime'),
+	     				'rate'=>$this->input->post('inputRate'),
+	     				'split'=>$this->input->post('inputSplit')
+	     				);
+
+	     $response =	$this->activity_model->add(
+	     		$this->input->post('inputDate'),
+	     		$this->l_auth->current_user_id(),
+	     		$this->l_auth->current_user_id(),
+	     		$type,
+	     		array($c0)	,
+	     		$this->input->post('inputNotes')
+	     		);
+		
+		$this->output
+		->set_content_type('application/json')
+		->set_output(json_encode($response));
 	}
 }
 

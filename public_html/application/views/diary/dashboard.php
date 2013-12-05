@@ -1,6 +1,6 @@
-<div class="container">
-      <!-- Example row of columns -->
-      <style type="text/css">
+<div class="container"> 
+  <!-- Example row of columns -->
+  <style type="text/css">
       	.group .excard a {
       		display: block;
 			width: 110px;
@@ -14,100 +14,114 @@
       		display: none;
       	}
       </style>
-    <div class="row">
-        <div class="col-lg-12">
-          <h2>Diary</h2>
-          <div class="day">
-          	<h3>This Week</h3>
-          	<div class="group">
-          	<? foreach($this_week as $activity): ?>
-			  <div class="excard">
-			  	<a href="#view_<?= $activity['ref']?>"><h3><?= $activity['label']?></h3>
-			  	<p><?= date("D j", strtotime($activity['sort_time'])) ?></p></a>
-			  </div>
-			<? endforeach; ?>
-			  <div class="excard">
-			  	<a href="#newWorkoutModal" data-toggle="modal" >
-			  		<button type="button" class="btn btn-default btn-lg">
-					  <span class="glyphicon glyphicon-add"></span> Add
-					</button>
-					</a>
-			  </div>
-			</div>
-          </div>  
-       
-		</div>
-	</div>
+  <div class="row">
+    <div class="col-lg-12">
+      <h2>Diary</h2>
+      <div class="day">
+        <h3>This Week</h3>
+        <div class="group">
+          <? foreach($this_week as $activity): ?>
+          <div class="excard"> <a href="<?=base_url()?>diary/view/<?=$activity['ref']?>/" data-target="#viewWorkoutModal" data-toggle="modal" >
+            <h3>
+              <?= $activity['label']?>
+            </h3>
+            <p>
+              <?= date("D j", strtotime($activity['sort_time'])) ?>
+            </p>
+            </a> </div>
+          <? endforeach; ?>
+          <div class="excard"> <a href="#newWorkoutModal" data-toggle="modal" >
+            <button type="button" class="btn btn-default btn-lg"> <span class="glyphicon glyphicon-add"></span> Add </button>
+            </a> </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <!-- Modal -->
-  <div class="modal fade" id="newWorkoutModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button id="showAddForm" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">New Workout</h4>
-        </div>
-        <div class="modal-body">
-        	<p>Select an exercise:</p>
 
-          <?php echo form_open('diary/add',array('role'=>'form')); ?>
-          	  <div class="form-group">
-			    <label for="inputTime">Date</label>
-			    <input type="text" class="form-control" id="inputDate" name="inputDate" value="<?= date("d-m-Y")?>">
-			  </div>
-			     <div class="form-group ">
-          <label class="control-label" for="inputType">Type</label>
-          <select class="form-control" id="inputType" name="inputType">
-            <? foreach($types as $key => $group) { ?>
-            <optgroup label="<?=$key?>">
-            	<? foreach($group as $item): ?>
-              <option value="<?= $item['value'] ?>"><?= $item['label']?></option>
-          <? endforeach; ?>
-            </optgroup>
-          
-        <? } ?>
-          </select>
-        </div>
-			
-			  <div class="form-group ir-dtsr">
-			    <label for="inputSplit">Split (MM:SS.SS)</label>
-			    <input type="text" class="form-control" id="inputSplit" name="inputSplit" placeholder="Enter 500m split">
-			  </div>
-			  <div class="form-group ir-dtsr ir-dt timeG">
-			    <label for="inputTime">Time (HH:MM:SS.SS)</label>
-			    <input type="text" class="form-control" id="inputTime" name="inputTime" placeholder="Enter time">
-			  </div>
-			  <div class="form-group ir-dtsr ir-dt distanceG">
-			    <label for="inputDistance">Distance (Metres)</label>
-			    <input type="text" class="form-control" id="inputDistance" name="inputDistance" placeholder="Enter distance">
-			  </div>
-			  
-			  <div class="form-group ir-dtsr">
-			    <label for="inputRate">Rate (strokes per minute)</label>
-			    <input type="text" class="form-control" id="inputRate" name="inputRate" placeholder="Enter rate">
-			  </div>
+<div class="modal fade" id="viewWorkoutModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button id="showAddForm" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">View Log</h4>
+      </div>
+      <div class="modal-body">
+        <p>RECORD:</p>
+        <p></p>
+      </div>
+    </div>
+    <!-- /.modal-content --> 
+  </div>
+  <!-- /.modal-dialog --> 
+</div>
+<!-- /.modal -->
 
-			  <div class="form-group ir-dtsr ir-dt ir-n">
-			  	<label for="inputNotes">Notes</label>
-			  	<textarea class="form-control" name="inputNotes" id="inputNotes"></textarea>
-			  </div>
-
-			  <div class="checkbox">
-			    <label>
-			      <input type="checkbox"> Check me out
-			    </label>
-			  </div>
-			
+<div class="modal fade" id="newWorkoutModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button id="showAddForm" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">New Workout</h4>
+      </div>
+      <div class="modal-body">
+      <div id="statusMsg">&nbsp;</div>
+        <div id="addExContainer">
+          <p>Select an exercise:</p>
+          <?php echo form_open('diary/add',array('role'=>'form','id'=>'addexForm')); ?>
+          <div class="form-group">
+            <label for="inputTime">Date</label>
+            <input type="text" class="form-control" id="inputDate" name="inputDate" value="<?= date("d-m-Y")?>">
+          </div>
+          <div class="form-group ">
+            <label class="control-label" for="inputType">Type</label>
+            <select class="form-control" id="inputType" name="inputType">
+              <? foreach($types as $key => $group) { ?>
+              <optgroup label="<?=$key?>">
+              <? foreach($group as $item): ?>
+              <option value="<?= $item['value'] ?>">
+              <?= $item['label']?>
+              </option>
+              <? endforeach; ?>
+              </optgroup>
+              <? } ?>
+            </select>
+          </div>
+          <div class="form-group ir-dtsr">
+            <label for="inputSplit">Split (MM:SS.SS)</label>
+            <input type="text" class="form-control" id="inputSplit" name="inputSplit" placeholder="Enter 500m split">
+          </div>
+          <div class="form-group ir-dtsr ir-dt timeG">
+            <label for="inputTime">Time (HH:MM:SS.SS)</label>
+            <input type="text" class="form-control" id="inputTime" name="inputTime" placeholder="Enter time">
+          </div>
+          <div class="form-group ir-dtsr ir-dt distanceG">
+            <label for="inputDistance">Distance (Metres)</label>
+            <input type="text" class="form-control" id="inputDistance" name="inputDistance" placeholder="Enter distance">
+          </div>
+          <div class="form-group ir-dtsr">
+            <label for="inputRate">Rate (strokes per minute)</label>
+            <input type="text" class="form-control" id="inputRate" name="inputRate" placeholder="Enter rate">
+          </div>
+          <div class="form-group ir-dtsr ir-dt ir-n">
+            <label for="inputNotes">Notes</label>
+            <textarea class="form-control" name="inputNotes" id="inputNotes"></textarea>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary">Save</button>
         </div>
-    </form>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div><!-- /.modal -->
-  <script type="text/javascript">
+        </form>
+     	</div>
+    </div>
+    <!-- /.modal-content --> 
+  </div>
+  <!-- /.modal-dialog --> 
+</div>
+<!-- /.modal --> 
+<script type="text/javascript">
   $(document).ready(function() {
   	typecode = 1;
   	function switchInputs(code) {
@@ -290,6 +304,37 @@ hours = Math.floor(init / 3600);
 	  		
 	  	}
   	}
+
+  	//////////////////////////////////////////////////////////
+  	// view exercise code
+
+	/////////////////////////////////
+	
+	////////////////////////////
+	// exercise submit ajaxify
+	$("#addexForm").submit(function(event) {
+		$("#addExContainer").slideUp();
+		$("#newWorkoutModal #statusMsg").html("<h2>Saving...</h2>");
+		$.ajax({
+			type: "POST",
+			url: "/diary/ajax_logexercise",
+			data: $( this ).serialize() 
+		}
+			)
+		  .done(function() {
+			$("#newWorkoutModal").modal('hide');
+		  })
+		  .fail(function() {
+			alert( "error" );
+		  })
+		  .always(function() {
+			
+		});
+		
+  		event.preventDefault();
+	});
+	//////////////////////////////////
+  
+
   });
-  </script>
- 
+  </script> 
