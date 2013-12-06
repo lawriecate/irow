@@ -9,12 +9,12 @@
         		<h4>Your account could not be registered due to a technical problem, please contact support@irow.co.uk</h4>
         	</div>
         	<? } */?>
-      <?php //echo validation_errors('<div class="alert alert-danger">','</div>'); ?>
+      <?php echo validation_errors('<div class="alert alert-danger">','</div>'); ?>
       <?php echo form_open('/register/setup',array('role'=>'form','class'=>'form-horizontal')); ?>
           <div class="form-group">
             <label class="col-lg-2 control-label" for="dob">Date Of Birth</label>
             <div class="col-lg-10">
-              <input type="date" class="form-control" id="dob" name="dob" placeholder="00-00-0000">
+              <input type="text" class="form-control" id="dob" name="dob" placeholder="00-00-0000">
             </div>
           </div>
           <div class="form-group">
@@ -44,11 +44,11 @@
               
           </div>
           <div class="form-group">
-            <label class="col-lg-2 control-label" for="armSpan">Arm Span</label>
+            <label class="col-lg-2 control-label" for="armspan">Arm Span</label>
           
                 <div class="col-xs-2">
                   <div class="input-group ">
-                    <input name="armSpan" type="text" class="form-control" maxlength="3" >
+                    <input name="armspan" type="text" class="form-control" maxlength="3" >
                     <span class="input-group-addon">cm</span> </div>
                 </div>
               
@@ -62,6 +62,20 @@
                     <span class="input-group-addon">kg</span> </div>
                 </div>
              
+          </div>
+          <div class="form-group">
+            <label class="col-lg-2 control-label" for="club">Club</label>
+            <div class="col-lg-4">
+               <select name="club" class="form-control">
+                  <optgroup label="Suggested">
+                    <option value="1">Dart Totnes</option>
+                  </optgroup>
+                  <optgroup label="Other Options">
+                    <option value="0">*** No Club ***</option>
+                  </optgroup>
+                </select>
+            </div>
+             <p>Please remember selecting a club means verified coaches can see and add to your performance data</p>
           </div>
           <div class="form-group">
             <div class="col-lg-10">
