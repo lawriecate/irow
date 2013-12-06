@@ -4,11 +4,11 @@
     <div class="col-md-12">
       <h2>You have created your account!</h2>
       <p>Before you start using iRow, you need to setup your profile</p>
-      <? /*if($registration_failure == TRUE){ ?>
+      <? if($system_error == TRUE){ ?>
         	<div class="alert alert-danger">
-        		<h4>Your account could not be registered due to a technical problem, please contact support@irow.co.uk</h4>
+        		<h4>Your account could not be updated due to a technical problem, please contact support@irow.co.uk</h4>
         	</div>
-        	<? } */?>
+        	<? } ?>
       <?php echo validation_errors('<div class="alert alert-danger">','</div>'); ?>
       <?php echo form_open('/register/setup',array('role'=>'form','class'=>'form-horizontal')); ?>
           <div class="form-group">

@@ -1,7 +1,7 @@
 <?php
 if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-Class Activity_model extends CI_Model
+Class Measurements_model extends CI_Model
 {
 	function update_height($id,$height)
 	{
@@ -18,7 +18,7 @@ Class Activity_model extends CI_Model
 		// function inserts records into the height measurements table
 		$row = array(
 					'uid' => $id,
-					'armspan' => $height
+					'armspan' => $armspan
 				);
 			$this->db->insert('measurements_armspans',$row);
 	}
@@ -28,7 +28,7 @@ Class Activity_model extends CI_Model
 		// function inserts records into the height measurements table
 		$row = array(
 					'uid' => $id,
-					'weight' => $height
+					'weight' => $weight
 				);
 			$this->db->insert('measurements_weights',$row);
 	}

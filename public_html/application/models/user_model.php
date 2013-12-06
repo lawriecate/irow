@@ -49,8 +49,36 @@ Class User_model extends CI_Model
 		}
 	}
 	
-	function setup($id,$dob,$gender,$height,$armspan,$weight,$clubs) {
-		
+	function setup($dob,$gender,$height,$armspan,$weight,$club) {
+		$return = TRUE;
+		// edit user profile fields (dob, gender, club)
+		$update = array(
+			'id' => $this->l_auth->current_user_id(),
+			'dob' => date( 'Y-m-d', strtotime($dob)),
+			'gender' => $gender,
+			'club' => $club
+			);
+
+		// send update query to database
+		$return = $this->db->update('users',$update);
+
+		// get special interface to access measurements model
+		$CI =& get_instance();
+        $CI->load->model('measurements_model');
+        // if height is entered update it
+        if($height != "" ) {
+        	$return = $return AND $this->measurements_model->update_height($this->l_auth->current_user_id(),$height);
+        }
+        // if armspan is entered update it
+        if($armspan != "" ) {
+        	$return = $return AND $this->measurements_model->update_armspan($this->l_auth->current_user_id(),$armspan);
+        }
+        // if weight is entered update it
+        if($weight != "" ) {
+        	$return = $return AND $this->measurements_model->update_weight($this->l_auth->current_user_id(),$weight);
+        }
+
+        return $return;
 	}
 
 	function get_by_id($id) {
