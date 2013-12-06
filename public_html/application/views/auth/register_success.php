@@ -14,7 +14,7 @@
           <div class="form-group">
             <label class="col-lg-2 control-label" for="dob">Date Of Birth</label>
             <div class="col-lg-10">
-              <input type="text" class="form-control" id="dob" name="dob" placeholder="00-00-0000">
+              <input type="text" class="form-control" id="dob" name="dob" placeholder="00-00-0000" value="<?= set_value('dob') ?>" autofocus>
             </div>
           </div>
           <div class="form-group">
@@ -22,12 +22,12 @@
             <div class="col-lg-10">
               <div class="radio">
                 <label>
-                  <input type="radio" name="gender" id="optionsRadios1" value="m" checked>
+                  <input type="radio" name="gender" id="optionsRadios1" value="m" <?= set_checkbox('gender', 'm', TRUE) ?> >
                   Male </label>
               </div>
               <div class="radio">
                 <label>
-                  <input type="radio" name="gender" id="optionsRadios2" value="f">
+                  <input type="radio" name="gender" id="optionsRadios2" value="f" <?= set_checkbox('gender', 'f') ?>>
                   Female </label>
               </div>
             </div>
@@ -37,7 +37,7 @@
             
                 <div class="col-xs-2">
                   <div class="input-group ">
-                    <input name="height" type="text" class="form-control" maxlength="3" >
+                    <input name="height" type="text" class="form-control" maxlength="3" value="<?= set_value('height') ?>" >
                     <span class="input-group-addon">cm</span> 
                   </div>
                 </div>
@@ -48,7 +48,7 @@
           
                 <div class="col-xs-2">
                   <div class="input-group ">
-                    <input name="armspan" type="text" class="form-control" maxlength="3" >
+                    <input name="armspan" type="text" class="form-control" maxlength="3" value="<?= set_value('armspan') ?>" >
                     <span class="input-group-addon">cm</span> </div>
                 </div>
               
@@ -58,7 +58,7 @@
             
                 <div class="col-xs-2">
                   <div class="input-group ">
-                    <input name="weight" type="text" class="form-control" maxlength="3" >
+                    <input name="weight" type="text" class="form-control" maxlength="3" value="<?= set_value('weight') ?>" >
                     <span class="input-group-addon">kg</span> </div>
                 </div>
              

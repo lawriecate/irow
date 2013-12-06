@@ -19,10 +19,10 @@ class Register extends CI_Controller {
 		$this->load->library('form_validation');
 
 		// set validation rules for registration form
-		$this->form_validation->set_rules('email', 'Email', 'email|trim|required|xss_clean|is_unique[users.email]');
-		$this->form_validation->set_rules('name', 'Name', 'trim|required|xss_clean');
+		$this->form_validation->set_rules('email', 'Email', 'valid_email|trim|required|xss_clean|is_unique[users.email]'); // checks email is valid,entered,trims blank space,remove XSS script,and checks it's unique
+		$this->form_validation->set_rules('name', 'Name', 'trim|required|xss_clean|min_length[2]|max_length[30]|alpha');
 		//$this->form_validation->set_rules('dob', 'Date Of Birth', 'trim|required|xss_clean|callback__dobcheck');
-	   	$this->form_validation->set_rules('password', 'Password', 'trim|required|xss_clean');
+	   	$this->form_validation->set_rules('password', 'Password', 'trim|required|xss_clean|min_length[5]|max_length[30]');
 	   	$this->form_validation->set_rules('password2', 'Confirmation Password', 'trim|required|xss_clean|matches[password]');
 	   	$this->form_validation->set_rules('tosconsent', 'Terms Of Service Agreement', 'callback__accept_terms');
 	   	$data['registration_failure'] = FALSE;
@@ -159,10 +159,10 @@ class Register extends CI_Controller {
 		// set validation rules for setup form
 		$this->form_validation->set_rules('dob', 'Date Of Birth', 'trim|required|xss_clean|callback__dobcheck');
 		$this->form_validation->set_rules('gender', 'Gender', 'trim|required|xss_clean|callback__gendercheck');
-		$this->form_validation->set_rules('height', 'Height', 'callback__heightcheck');
-		$this->form_validation->set_rules('weight', 'Weight', 'callback__weightcheck');
-		$this->form_validation->set_rules('armspan', 'Arm Span', 'callback__armspancheck');
-		$this->form_validation->set_rules('club', 'Club', 'callback__clubcheck');
+		$this->form_validation->set_rules('height', 'Height', 'xss_clean|callback__heightcheck');
+		$this->form_validation->set_rules('weight', 'Weight', 'xss_clean|callback__weightcheck');
+		$this->form_validation->set_rules('armspan', 'Arm Span', 'xss_clean|callback__armspancheck');
+		$this->form_validation->set_rules('club', 'Club', 'xss_clean|callback__clubcheck');
 
 	   	// 
 		if($this->form_validation->run() == FALSE) // if the form isn't valid / or submitted

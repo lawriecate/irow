@@ -16,19 +16,19 @@
 			  <div class="form-group">
 			    <label  class="col-lg-2 control-label" for="inputEmail">Email</label>
 			    <div class="col-lg-10">
-			    	<input type="text" class="form-control" id="inputEmail" name="email" placeholder="Email">
+			    	<input type="text" class="form-control" id="inputEmail" name="email" placeholder="Email" value="<?= set_value('email') ?>" autofocus>
 				</div>
 			  </div>
 			  <div class="form-group">
 			    <label class="col-lg-2 control-label" for="inputName">Name</label>
 			    <div class="col-lg-10">
-			      <input type="text" class="form-control" id="inputName" name="name" placeholder="Name">
+			      <input type="text" class="form-control" id="inputName" name="name" placeholder="Name" value="<?= set_value('name') ?>">
 			  	</div>
 			  </div>
 			  <div class="form-group">
 			    <label class="col-lg-2 control-label" for="inputPassword">Password</label>
 			    <div class="col-lg-10">
-			      <input type="password" class="form-control" id="inputPassword" name="password" placeholder="Password">
+			      <input type="password" class="form-control" id="inputPassword" name="password" placeholder="Password" value="<?= set_value('password') ?>">
 			    </div>
 			 </div>
 			 <div class="form-group">
@@ -39,7 +39,7 @@
 			  </div>
 			  <div class="form-group">
                     <label class="col-lg-10">
-                        <input name="tosconsent" type="checkbox" name="checkbox" value="yes"> I agree to all your <a href="#">Terms of Services</a>
+                        <input name="tosconsent" type="checkbox" name="checkbox" value="yes" <?= set_checkbox('tosconsent', 'yes') ?>> I agree to all your <a href="#">Terms of Services</a>
                     </label>
                     <div class="col-lg-10">
                         <button type="submit" class="btn btn-success">Sign Up</button>

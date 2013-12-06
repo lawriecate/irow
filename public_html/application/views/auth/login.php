@@ -11,7 +11,7 @@
 
 			  <div class="form-group">
 			    <label class="control-label" for="inputEmail">Email</label>
-			    <input type="text" class="form-control" name="email" id="inputEmail" placeholder="Email">
+			    <input type="text" class="form-control" name="email" id="inputEmail" placeholder="Email" value="<?= set_value('email') ?>" autofocus>
 			  </div>
 			  <div class="form-group">
 			    <label class="control-label" for="inputPassword">Password</label>

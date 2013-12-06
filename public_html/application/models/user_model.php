@@ -56,7 +56,8 @@ Class User_model extends CI_Model
 			'id' => $this->l_auth->current_user_id(),
 			'dob' => date( 'Y-m-d', strtotime($dob)),
 			'gender' => $gender,
-			'club' => $club
+			'club' => $club,
+			'setup' => 1
 			);
 
 		// send update query to database
