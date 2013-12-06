@@ -1,4 +1,4 @@
-<div class="modal fade" id="viewWorkoutModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+<?php /*?><div class="modal fade" id="viewWorkoutModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false"><?php */?>
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -11,4 +11,4 @@
           </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
-  </div><!-- /.modal -->
+<?php /*?>  </div><!-- /.modal --><?php */?>

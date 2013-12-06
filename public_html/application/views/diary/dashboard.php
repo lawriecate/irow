@@ -322,7 +322,8 @@ hours = Math.floor(init / 3600);
 		}
 			)
 		  .done(function() {
-			$("#newWorkoutModal").modal('hide');
+			//$("#newWorkoutModal").modal('hide');
+			location.reload();
 		  })
 		  .fail(function() {
 			alert( "error" );
