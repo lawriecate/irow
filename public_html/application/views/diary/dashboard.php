@@ -17,23 +17,8 @@
   <div class="row">
     <div class="col-lg-12">
       <h2>Diary</h2>
-      <div class="day">
-        <h3>This Week</h3>
-        <div class="group">
-          <? foreach($this_week as $activity): ?>
-          <div class="excard"> <a href="<?=base_url()?>diary/view/<?=$activity['ref']?>/" data-target="#viewWorkoutModal" data-toggle="modal" >
-            <h3>
-              <?= $activity['label']?>
-            </h3>
-            <p>
-              <?= date("D j", strtotime($activity['sort_time'])) ?>
-            </p>
-            </a> </div>
-          <? endforeach; ?>
-          <div class="excard"> <a href="#newWorkoutModal" data-toggle="modal" >
-            <button type="button" class="btn btn-default btn-lg"> <span class="glyphicon glyphicon-add"></span> Add </button>
-            </a> </div>
-        </div>
+      <div id="diary_container">
+        <p>loading...</p>
       </div>
     </div>
   </div>
@@ -317,7 +302,7 @@ hours = Math.floor(init / 3600);
 		$("#newWorkoutModal #statusMsg").html("<h2>Saving...</h2>");
 		$.ajax({
 			type: "POST",
-			url: "/diary/ajax_logexercise",
+			url: "diary/ajax_logexercise",
 			data: $( this ).serialize() 
 		}
 			)
@@ -336,6 +321,68 @@ hours = Math.floor(init / 3600);
 	});
 	//////////////////////////////////
   
+  // page load first data
+
+  $.ajax({
+      type: "GET",
+      url: "<?= base_url() ?>diary/ajax_diary_totals"
+    }
+      )
+      .done(  function(data) {
+        $("#diary_container").html("");
+        $.each(data,function(year, months) {
+          addYear(year);
+            $.each(months,function(j,month) {
+              addMonth(year,month);
+            }); 
+        });
+      })
+      .fail(function() {
+      alert( "error" );
+      })
+      .always(function() {
+      
+    });
+
+      function addYear(year) {
+        var yearOuter = $("<h2></h2>");
+        var yearAnchor = yearOuter.append('<a href="#">'+year+'</a>');
+        yearAnchor.click(function() {
+          alert('test');
+        });
+        $("#diary_container").append(yearOuter);
+      }
+    
+    function addMonth(year,month) {
+      //$("#diary_container").append('<h3><a href="#">' + year + ": " + month + "</a></h3>");
+        var monthOuter = $("<h3></h3>");
+        var monthAnchor = monthOuter.append('<a href="#">'+year+' - '+month+'</a>');
+        monthAnchor.click(function() {
+          alert('loading... ' + year + '/' + month);
+        });
+        $("#diary_container").append(monthOuter);
+    }
+
+
+  /*
+  <h3>This Week</h3>
+        <div class="group">
+          <? foreach($this_week as $activity): ?>
+          <div class="excard"> <a href="<?=base_url()?>diary/view/<?=$activity['ref']?>/" data-target="#viewWorkoutModal" data-toggle="modal" >
+            <h3>
+              <?= $activity['label']?>
+            </h3>
+            <p>
+              <?= date("D j", strtotime($activity['sort_time'])) ?>
+            </p>
+            </a> </div>
+          <? endforeach; ?>
+          <div class="excard"> <a href="#newWorkoutModal" data-toggle="modal" >
+            <button type="button" class="btn btn-default btn-lg"> <span class="glyphicon glyphicon-add"></span> Add </button>
+            </a> </div>
+        </div>*/
+
+        /////////////////////////
 
   });
   </script> 

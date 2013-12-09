@@ -15,16 +15,19 @@ Class Activity_model extends CI_Model
 					'sort_time' => date('Y-m-d H:i:s',strtotime($date)),
 					'type' => $type,
 					'label' => 'TEST',
-					'components' => $this->componentsString($components),
 					'component_count' => count($components),
 					'notes' => $notes
 				);
+
 		//print_r($row);
-			$this->db->insert('activities',$row);
+		$this->db->insert('activities',$row);
+		$activity_id = $this->db->insert_id();
+		// insert components
+		$this->addComponents($activity_id,$components);
 
 		// calculate statistics if components present
 		if(count($components) > 0) {
-			$component_array = $this->getActivityComponents($eref);
+			$component_array = $this->getActivityComponents($activity_id);
 			$update = array(
 				'total_distance' => $component_array['totalDist'],
 				'total_time' => $component_array['totalTimeSeconds'],
@@ -48,7 +51,7 @@ Class Activity_model extends CI_Model
 		//echo date("Y-m-d H:i:s",($start)) . '<br> ' . date("Y-m-d H:i:s",($end));
 	}
 
-	private function componentsString($components) {
+	/*private function componentsString($components) {
 		$ids = array();
 		foreach ($components as $key => $component) {
 			$processed = array(
@@ -61,6 +64,19 @@ Class Activity_model extends CI_Model
 			$ids[] = $this->db->insert_id();
 		}
 		return implode(",",$ids);
+	}*/
+
+	private function addComponents($activity_id,$components) {
+		foreach($components as $key => $component) {
+			$processed = array(
+					'activity_id' => $activity_id,
+					'time' => $this->time_to_seconds($component['time']),
+					'split' => $this->time_to_seconds($component['split']),
+					'distance' => $component['distance'],
+					'rate' => $component['rate']
+				);
+			$this->db->insert('activities_components',$processed);
+		}
 	}
 
 	private function activityStats($acid) {
@@ -68,18 +84,18 @@ Class Activity_model extends CI_Model
 	}
 
 	public function getActivityComponents($acid) {
-		$query = $this->db->get_where('activities',array('ref'=>$acid),1);
-		$activity = $query->row_array();	
-		$component_ids = explode(",",$activity['components']);
-		$components = array();
+		$query = $this->db->get_where('activities_components',array('activity_id'=>$acid));
+		$components = $query->result_array();	
+		//$component_ids = explode(",",$activity['components']);
+		//$components = array();
 		$totalTime = 0; // refers to only the time spent exercising, for calculation of averages
 		$totalDist = 0; // refers to total distance achieved
 		$totalRate = 0; // refers to average rate
 		$totalDuration = 0; // refers to the time taken for the whole exercise including rests
-		foreach ($component_ids as $component_id) {
-
+		foreach ($components as $key => $component) {
+			
 			// process part of exercise sequence
-			$start_char = substr($component_id,0,1);
+			/*$start_char = substr($component_id,0,1);
 			if($start_char == "R") {
 				// rest block
 				$component['type'] = 'rest';
@@ -88,42 +104,103 @@ Class Activity_model extends CI_Model
 					$component['time'] = $duration;
 					$totalDuration += $duration;
 				}
-			} else {
-				$component['type'] = 'active';
-				$query = $this->db->get_where('activities_components',array('id'=>$component_id),1);
-				$component = $query->row_array();
+			} else {*/
+				$components[$key]['type'] = 'active';
+				//$query = $this->db->get_where('activities_components',array('id'=>$component_id),1);
+				//$component = $query->row_array();
 
 				$totalDuration += $component['time'];
 				$totalTime += $component['time'];
 				$totalDist += $component['distance'];
 				$totalRate += $component['rate'];
 
-				$component['raw_time'] = $component['time'];
-				$component['time'] = $this->outputSplit($component['time']);
+				$components[$key]['raw_time'] = $component['time'];
+				$components[$key]['time'] = $this->outputSplit($component['time']);
 
-				$component['raw_split'] = $component['split'];
-				$component['split'] = $this->outputSplit($component['split']);
-			}
-			$components[] = $component;
+				$components[$key]['raw_split'] = $component['split'];
+				$components[$key]['split'] = $this->outputSplit($component['split']);
+			//}
+			//$components[] = $component;
 		}
+
+		$no_of_components = count($components);
 
 		$components['totalTime'] = $this->outputSplit($totalTime);
 		$components['totalTimeSeconds'] = $totalTime;
 		$components['totalDist'] = $totalDist;
-		$avgTime = ($totalTime)/count($component_ids);
+		$avgTime = ($totalTime)/$no_of_components;
 		$components['avgTimeSeconds'] = $avgTime;
 		$components['avgTime'] = $this->outputSplit($avgTime);
-		$components['avgDist'] = (($totalDist)/count($component_ids));
+		$components['avgDist'] = round(	(($totalDist)/$no_of_components)	, 2);
 		$avgSplit = ($totalTime) / ($totalDist/500);
 		$components['avgSplitSeconds'] = $avgSplit;
 		$components['avgSplit'] = $this->outputSplit($avgSplit);
-		$components['avgRate'] = round(($totalRate / count($component_ids)),1);
+		$components['avgRate'] = round(($totalRate / $no_of_components),1);
 		return $components;
 	}
 	
 	public function get($ref) {
 		$query =  $this->db->get_where('activities',array('ref'=>$ref));
 		return $query->row_array();
+	}
+
+	public function list_years($uid) {
+		$this->db->select('user, sort_time, YEAR(sort_time)');
+		$this->db->from('activities');
+		$this->db->where('user',$uid);
+		$this->db->group_by('YEAR(sort_time)');
+		$query = $this->db->get();
+
+		$years = array();
+
+		foreach ($query->result() as $row) {
+			$years[] = $row->{"YEAR(sort_time)"};
+		}
+		return $years;
+	}
+
+	public function list_months($uid,$year) {
+		$this->db->select('user, sort_time, YEAR(sort_time), MONTH(sort_time)');
+		$this->db->from('activities');
+		$this->db->where(array(
+			'user' => $uid,
+			'YEAR(sort_time)' => $year
+			));
+		$this->db->group_by('MONTH(sort_time)');
+		$query = $this->db->get();
+
+		$months = array();
+
+		foreach ($query->result() as $row) {
+			$months[] = $row->{"MONTH(sort_time)"};
+		}
+		return $months;
+	}
+
+	public function list_days($uid,$year,$month) {
+		$this->db->select('user, sort_time, DAY(sort_time), COUNT(*)  ');
+		$this->db->from('activities');
+		$date_start = date("Y-m-1 00:00:00",strtotime("$year-$month"));
+		$date_end = date("Y-m-t 00:00:00",strtotime("$year-$month"));
+		
+		$this->db->where(array(
+			'sort_time >= ' => $date_start,
+			'sort_time <= ' => $date_end
+			));
+		$this->db->order_by('sort_time', 'asc');
+		$this->db->group_by('DAY(sort_time)');
+		$query = $this->db->get();
+
+		$days = array();
+
+		foreach ($query->result() as $row) {
+			$days[] = array(
+				'day' => $row->{"DAY(sort_time)"},
+				'no_activities' => $row->{"COUNT(*)"}
+
+				);
+		}
+		return $days;
 	}
 
 	function delete($id)

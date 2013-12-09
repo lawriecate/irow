@@ -22,6 +22,7 @@ class Diary extends Secure_Controller {
 		$this->load->view('templates/header');
 		$data['types'] = $this->activity_model->getTypes();	
 		$data['this_week'] = $this_week_data;
+
 		$this->load->view('diary/dashboard',$data);
 		$this->load->view('templates/footer');
 		
@@ -31,6 +32,7 @@ class Diary extends Secure_Controller {
 	{
 		//$this->load->view('templates/header');
 		$exercise = $this->activity_model->get($ref);
+		//print_r($this->activity_model->getActivityComponents($exercise['id']));
 		if($exercise == FALSE) {
 			return FALSE; 
 		} else {
@@ -104,6 +106,35 @@ class Diary extends Secure_Controller {
 		$this->output
 		->set_content_type('application/json')
 		->set_output(json_encode($response));
+	}
+
+	public function ajax_diary_totals() {
+		$response = array();
+
+		$me = $this->l_auth->current_user_id();
+		$years = $this->activity_model->list_years($me);
+		foreach($years as $year) {
+			$response[$year] = array();
+			$response[$year] = $this->activity_model->list_months($me,$year);
+		}
+		
+		//print_r($this->activity_model->list_days($me,2013,12));
+
+		$this->output
+		->set_content_type('application/json')
+		->set_output(json_encode($response));
+	}
+
+	public function ajax_diary_days() {
+		$year = $this->input->get('year');
+		$month =  $this->input->get('month');
+
+		$me = $this->l_auth->current_user_id();
+		$days = $this->activity_model->list_days($me,$year,$month);
+
+		$this->output
+		->set_content_type('application/json')
+		->set_output(json_encode($days));
 	}
 }
 
