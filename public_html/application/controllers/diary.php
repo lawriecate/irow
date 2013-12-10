@@ -136,6 +136,19 @@ class Diary extends Secure_Controller {
 		->set_content_type('application/json')
 		->set_output(json_encode($days));
 	}
+
+	public function ajax_diary_daylist() {
+		$year = $this->input->get('year');
+		$month =  $this->input->get('month');
+		$day = $this->input->get('day');
+
+		$me = $this->l_auth->current_user_id();
+		$list = $this->activity_model->list_exercises_for_day($me,$year,$month,$day);
+
+		$this->output
+		->set_content_type('application/json')
+		->set_output(json_encode($list));
+	}
 }
 
 /* End of file diary.php */

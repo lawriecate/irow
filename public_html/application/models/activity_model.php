@@ -181,7 +181,7 @@ Class Activity_model extends CI_Model
 		$this->db->select('user, sort_time, DAY(sort_time), COUNT(*)  ');
 		$this->db->from('activities');
 		$date_start = date("Y-m-1 00:00:00",strtotime("$year-$month"));
-		$date_end = date("Y-m-t 00:00:00",strtotime("$year-$month"));
+		$date_end = date("Y-m-t 24:00:00",strtotime("$year-$month"));
 		
 		$this->db->where(array(
 			'sort_time >= ' => $date_start,
@@ -194,13 +194,15 @@ Class Activity_model extends CI_Model
 		$days = array();
 
 		foreach ($query->result() as $row) {
-			$days[] = array(
-				'day' => $row->{"DAY(sort_time)"},
-				'no_activities' => $row->{"COUNT(*)"}
-
-				);
+			$days[$row->{"DAY(sort_time)"}] =  $row->{"COUNT(*)"};
 		}
 		return $days;
+	}
+
+	public function list_exercises_for_day($uid,$year,$month,$day) {
+		$date_start = strtotime("$year-$month-$day 00:00:00");
+		$date_end = strtotime("$year-$month-$day 24:00:00");
+		return $this->list_activities($date_start,$date_end,$uid);
 	}
 
 	function delete($id)
