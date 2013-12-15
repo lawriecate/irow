@@ -1,11 +1,10 @@
 <div class="container"> 
   <!-- Example row of columns -->
   <style type="text/css">
-
       	.group .excard a {
       		display: block;
-			width: 140px;
-      		height: 140px;
+			width: 110px;
+      		height: 100px;
       		float: left;
       	}
       	.group .excard a:hover {
@@ -14,31 +13,12 @@
       	.ir-dtsr {
       		display: none;
       	}
-        .graph {
-          width: 100%;
-          background: #ccc;
-          height: 200px;
-          border-radius: 2px;
-
-        }
-        #graphs {
-          background:  grey;
-          height: 200px;
-        }
       </style>
   <div class="row">
     <div class="col-lg-12">
-      <div id="graphs">
-       &nbsp;
-
-      </div>
-          <small>[White] 2K average [Red] &frac12; hour average</small>
-      <ol class="breadcrumb" id="diary_breadcrumb">
-        <li class="active"><a href="#life">Diary</a></li>
-        
-      </ol>
+      <h2>Diary</h2>
       <div id="diary_container">
-        <p>...</p>
+        <p>loading...</p>
       </div>
     </div>
   </div>
@@ -341,151 +321,191 @@ hours = Math.floor(init / 3600);
 	});
 	//////////////////////////////////
   
-  // diary navigation
-	$(function(){
-		  
-		 function updateView(hash) {
-			
-			  req = hash.substring(1);
-			  
-			 	$.ajax({
-				  type: "GET",
-				  url: "<?= base_url() ?>diary/ajax_diary_view",
-				  data:{tag: req}
-				}
-				  )
-				  .done(  function(data) {
-          if(data != false) {
+  // page load first data
+  var yearVI;
+  var monthVI;
 
+  $.ajax({
+      type: "GET",
+      url: "<?= base_url() ?>diary/ajax_diary_totals"
+    }
+      )
+      .done(  function(data) {
+        $("#diary_container").html("");
+        getLifetimeView(data);
+      })
+      .fail(function() {
+      alert( "error" );
+      })
+      .always(function() {
+      
+    });
 
+  function getLifetimeView(data) {
+    var lifetimeView = $('<div class="view"></div>');
+    $("#diary_container").append(lifetimeView);
+    var yearList = $('<div class="group"></div>');
+    lifetimeView.append(yearList);
+    
+      $.each(data,function(year, months) {
+          var yearOuter = $('<div class="excard"></div>');
+          yearList.append(yearOuter);
+          var yearAnchor = $('<a href="#dy_'+year+'"></a>').append('<h3>'+year+'</h3>').append('<p></p>');
+          yearOuter.append(yearAnchor);
+          yearAnchor.click(function() {
+            var yearView = getYearView(year,lifetimeView);
+            
+          });
+          
+        });
 
+  }
 
+  function getYearView(year,lifetimeView) {
+      var yearView = $('<div class="view"></div>');
+      var yearOuter = $("<h2></h2>");
+      yearView.append(yearOuter);
 
-            //console.log(data);
-					    var view = $('<div class="view"></div>');
-              var viewOuter = $("<h2></h2>").text(data.title);
-              view.append(viewOuter);
-              /*if(data.return instanceof Object) {
-                var returnLink = $('<a href="'+data.return.link+'">'+data.return.title+'</a>');
-                returnLink.click(function() {
+      var returnLink = $('<a href="#">Go back to life view</a>');
+      returnLink.click(function() {
 
-                  updateView(data.return.link);
-                });
-                  returnLink.insertBefore(viewOuter);
+        switchViews(lifetimeView);
+        yearView.remove();
+      });
+      returnLink.insertBefore(yearOuter);
 
-              }*/
+      var yearAnchor = yearOuter.append('<a href="#dy_'+year+'">'+year+'</a>');
+      yearAnchor.click(function() {
+        //alert('test');
+      });
 
-              if(data.breadcrumb instanceof Object) {
-                $("#diary_breadcrumb").html('');
-                $.each(data.breadcrumb,function(key,crumb) {
-                  var li = $('<li></li>');
-                  var link = $('<a href="'+crumb.href+'">'+crumb.t+'</a>');
-                  li.append(link);
-                  link.click(function() {
-                    updateView(crumb.href)
-                  });
-                  $("#diary_breadcrumb").append(li);
-                });
-                $("#diary_breadcrumb li:last").addClass("active");
-                $("#diary_breadcrumb li:last").text($("#diary_breadcrumb li:last").text());
-              }
-              var viewList = $('<div class="group"></div>');
-              view.append(viewList);
-              $.each(data.items,function(key, obj) {
-                
-                var itemOuter = $('<div class="excard"></div>');
-                
-                viewList.append(itemOuter);
-                var itemLink = $('<a href="'+obj.link+'"></a>').append('<h3>'+obj.title+'</h3>').append('<p>'+obj.label+'</p>');
-                if(typeof obj.back != undefined) {
-                  itemLink.css('background',obj.back);
-                }
-                itemOuter.hide();
-                itemOuter.append(itemLink);
-                setTimeout(function() { itemOuter.fadeIn(); },20*key);
-
-                itemLink.click(function() {
-                  updateView(obj.link);
-                });
-                
-              });
-
-
-              if(typeof data.showAdd != undefined && data.showAdd == true) {
-                 var addLink = $('<div class="excard"> <a href="#newWorkoutModal" data-toggle="modal" ><button type="button" class="btn btn-default btn-lg"> <span class="glyphicon glyphicon-add"></span> Add </button> </a> </div>')
-                viewList.append(addLink);
-              }
-
-              $("#diary_container").html("");
-              $("#diary_container").append(view);
-
-              // GRAPH VIEW
-
-              if(data.graphs != false) {
-                $("#graphs").html("");
-                $.each(data.graphs, function(key,gdata) {
-                  var graph = $('<canvas id="dashChart'+key+'" class="graph"></canvas>');
-                  $("#graphs").append(graph);
-                  //var gdata = graph;
-                  //console.log(graph);
-
-                  var options = {animation : true};
-
-                  //Get the context of the canvas element we want to select
-                  var c = $('#dashChart'+key);
-                  var ct = c.get(0).getContext('2d');
-                  var ctx = document.getElementById("dashChart"+key).getContext("2d");
-                  /*************************************************************************/
-
-                  //Run function when window resizes
-                  $(window).resize(respondCanvas);
-                  
-                  function respondCanvas() {
-                      c.attr('width', jQuery("#dashChart"+key).width());
-                      c.attr('height', jQuery("#dashChart"+key).height());
-                      //Call a function to redraw other content (texts, images etc)
-                      myNewChart = new Chart(ct).Line(gdata, options);
-                  }
-
-                  //Initial call 
-                  respondCanvas();
-                });
-              
-                  
-              } else {
-                $("#graphs").html('<div style="height:200px"><p>No graph avaliable</p></div>');
-              }
-
-
-
-            } else {
-              $("#diary_container").html("<h1>Error loading page</h1>");
-            }
-
-				  })
-				  .fail(function() {
-				  $("#diary_container").html("<h1>System error, please try refreshing page</h1>");
-				  })
-				  .always(function() {
-				  
-				});
-		 }
-		 if(window.location.hash == "" ) {
-      var currentTime = new Date();
-      var month = currentTime.getMonth() + 1;
-      var day = currentTime.getDate();
-      var year = currentTime.getFullYear();
-        window.location.hash = "#month_" + year + "_" + month ;
+      var monthList = $('<div class="group"></div>');
+      yearView.append(monthList);
+      //$.each(months,function(j,month) {
+      //  addMonthLink(year,month,yearView);
+      //}); 
+      for (i=1; i<=12; i++) {
+        addMonthLink(year,i,monthList,yearView);
       }
-      updateView(window.location.hash);
-      		  
+      $("#diary_container").append(yearView);
+      switchViews(yearView);
+    	return yearView;
 
-      $(window).bind( 'hashchange', function(e) {
-        updateView(window.location.hash);
-       });
-		});
+  }
+    
+  function addMonthLink(year,month,yearViewMonthList,yearView) {  // function that adds object to represent a month 
+      //$("#diary_container").append('<h3><a href="#">' + year + ": " + month + "</a></h3>");
+      var monthOuter = $('<div class="excard"></div>');
+		  //yearView.append(monthOuter);
+      // var monthAnchor = monthOuter.append('<a href="#">'+year+' - '+month+'</a>');
+       var monthAnchor = $('<a href="#dy_'+year+'_'+month+'"></a>').append('<h3>'+month+'</h3>').append('<p>Act: '+year+'</p>');
+      monthAnchor.click(function() {
+      //alert('loading... ' + year + '/' + month);
+
+      // loads the data which tells the month if exercises are avaliable on each day
+      $.get('<?= base_url() ?>diary/ajax_diary_days', { year: year, month: month }, function( data) {
+      		switchViews(getMonthView(year,month,data,yearView));
+		  });
+      });
+      monthOuter.append(monthAnchor);
+      yearViewMonthList.append(monthOuter);
+    }
 	
+	function daysInMonth(month,year) {
+   		return new Date(year, month, 0).getDate();
+	}
 	
+	function getMonthView(year,month,data,parentView) {
+    
+
+		var monthView = $('<div class="view"></div>');
+		var monthHeader = $("<h3>Month View: " + year + "-" + month + "</h3>");
+    
+		monthView.append(monthHeader);
+
+    var returnLink = $('<a href="#dy_'+year+'">Go back to ' + year + '</a>');
+    returnLink.click(function() {
+
+      switchViews(parentView);
+      monthView.remove();
+    });
+    returnLink.insertBefore(monthHeader);
+
+		var listContainer = $('<div class="group"></div>');
+		monthView.append(listContainer);
+		/*$.each(data,function(key,obj) {
+			var day = obj.day
+			var noact = obj.no_activities;
+			var listObject= $('<div class="excard"></div>');
+			var dayLink = $('<a href="#"></a>').append('<h3>'+day+'</h3>').append('<p>Act:'+noact+'</p>');
+			listObject.append(dayLink);
+			listContainer.append(listObject);
+		});*/ 
+		for (i = 1; i <= daysInMonth(month,year); i++) {
+			var day = i;
+			var noact;
+
+			if (data[day] > 0) {
+				noact = data[day];
+			} else {
+				noact = 0;
+			}
+			var listObject= $('<div class="excard"></div>');
+			var dayLink = $('<a href="#dy_'+year+'_'+month+'_'+day+'"></a>');
+      dayLink.click([day],function(e) {
+        switchViews(getDayView(year,month,e.data[0],monthView));
+      });
+      dayLink.append('<h3>'+day+'</h3>').append('<p>Act: '+noact+'</p>');
+      
+
+			listObject.append(dayLink);
+      
+			listContainer.append(listObject);
+		}
+		
+		$("#diary_container").append(monthView);
+    return monthView;
+ 	}
+
+  function getDayView(year,month,day,parentView) {
+    var dayView = $('<div class="view"></div>');
+    var dayHeader = $("<h3>Day View: "+year+"-"+month+"-"+day+"</h3>");
+    dayView.append(dayHeader);
+
+    var returnLink = $('<a href="#dy_'+year+'_'+month+'">Go back to ' + month + '</a>');
+    returnLink.click(function() {
+
+      switchViews(parentView);
+      monthView.remove();
+    });
+    returnLink.insertBefore(dayHeader);
+
+    var listContainer = $('<div class="group"></div>');
+    dayView.append(listContainer);
+
+      $.get('<?= base_url() ?>diary/ajax_diary_daylist', { year: year, month: month, day: day }, function( data) {
+          $.each(data, function(key,activity) {
+
+               var listObject= $('<div class="excard"></div>');
+                var exLink = $('<a href="#"></a>').append('<h3>'+activity.label+'</h3>').append('<p>Act: '+activity.avg_split+'</p>');
+                listObject.append(exLink);
+                listContainer.append(listObject);
+          });
+          var addLink = $('<div class="excard"> <a href="#newWorkoutModal" data-toggle="modal" ><button type="button" class="btn btn-default btn-lg"> <span class="glyphicon glyphicon-add"></span> Add </button> </a> </div>')
+             listContainer.append(addLink);
+      });
+
+   
+
+      $("#diary_container").append(dayView);
+    return dayView;
+  }
+
+  function switchViews(current) {
+    $(".view").not(current).slideUp();
+    current.slideDown();
+  }
+
 
   /*
   <h3>This Week</h3>
@@ -509,4 +529,3 @@ hours = Math.floor(init / 3600);
 
   });
   </script> 
-
