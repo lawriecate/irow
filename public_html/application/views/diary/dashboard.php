@@ -114,12 +114,14 @@
             <textarea class="form-control" name="inputNotes" id="inputNotes"></textarea>
           </div>
         </div>
+        
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="submit" class="btn btn-primary" id="saveButton">Save</button>
         </div>
         </form>
      	</div>
+
     </div>
     <!-- /.modal-content --> 
   </div>
@@ -128,6 +130,27 @@
 <!-- /.modal --> 
 <script type="text/javascript">
   $(document).ready(function() {
+
+     $("#inputDate").inputmask("d-m-y"); 
+      $("#inputRate").inputmask({mask:"99",greedy: false,numericInput: true,rightAlignNumerics: false} ); 
+     $("#inputSplit").inputmask({mask:"9:99.9", greedy: false,numericInput: true,rightAlignNumerics: false  });
+      $("#inputTime").inputmask({mask:"99:99.9", greedy: false,numericInput: true,rightAlignNumerics: false });
+       $("#inputDistance").inputmask({mask:"999999",greedy: false,numericInput: true,rightAlignNumerics: false  });
+
+    $('#newWorkoutModal').on('show.bs.modal', function(e) {
+      $("#newWorkoutModal form")[0].reset();
+      $("#addExContainer").show();
+      $("#saveButton").show();
+      $("#statusMsg").html("&nbsp;");
+
+    });
+
+  $('#newWorkoutModal').on('shown.bs.modal', function(e) {
+
+      $("#inputType").focus();
+    });
+
+
   	typecode = 1;
   	function switchInputs(code) {
   	//	$(".ir-dtsr").slideUp();
@@ -312,49 +335,17 @@ hours = Math.floor(init / 3600);
 
   	//////////////////////////////////////////////////////////
   	// view exercise code
-
-	/////////////////////////////////
-	
-	////////////////////////////
-	// exercise submit ajaxify
-	$("#addexForm").submit(function(event) {
-		$("#addExContainer").slideUp();
-		$("#newWorkoutModal #statusMsg").html("<h2>Saving...</h2>");
-		$.ajax({
-			type: "POST",
-			url: "diary/ajax_logexercise",
-			data: $( this ).serialize() 
-		}
-			)
-		  .done(function() {
-			//$("#newWorkoutModal").modal('hide');
-			location.reload();
-		  })
-		  .fail(function() {
-			alert( "error" );
-		  })
-		  .always(function() {
-			
-		});
-		
-  		event.preventDefault();
-	});
-	//////////////////////////////////
-  
-  // diary navigation
-	$(function(){
-		  
-		 function updateView(hash) {
-			
-			  req = hash.substring(1);
-			  
-			 	$.ajax({
-				  type: "GET",
-				  url: "<?= base_url() ?>diary/ajax_diary_view",
-				  data:{tag: req}
-				}
-				  )
-				  .done(  function(data) {
+function updateView(hash) {
+      
+        req = hash.substring(1);
+        
+        $.ajax({
+          type: "GET",
+          url: "<?= base_url() ?>diary/ajax_diary_view",
+          data:{tag: req}
+        }
+          )
+          .done(  function(data) {
           if(data != false) {
 
 
@@ -362,7 +353,7 @@ hours = Math.floor(init / 3600);
 
 
             //console.log(data);
-					    var view = $('<div class="view"></div>');
+              var view = $('<div class="view"></div>');
               var viewOuter = $("<h2></h2>").text(data.title);
               view.append(viewOuter);
               /*if(data.return instanceof Object) {
@@ -412,7 +403,14 @@ hours = Math.floor(init / 3600);
 
 
               if(typeof data.showAdd != undefined && data.showAdd == true) {
-                 var addLink = $('<div class="excard"> <a href="#newWorkoutModal" data-toggle="modal" ><button type="button" class="btn btn-default btn-lg"> <span class="glyphicon glyphicon-add"></span> Add </button> </a> </div>')
+                 var addLink = $('<div class="excard"> </div>');
+                 var addAnchor = $('<a href="#newWorkoutModal" data-toggle="modal" ><button type="button" class="btn btn-default btn-lg"> <span class="glyphicon glyphicon-add"></span> Add </button> </a> ');
+                 addLink.append(addAnchor);
+                 addAnchor.click(function() {
+
+                  $("#inputDate").attr("value",data.showAddDate);
+
+                 });
                 viewList.append(addLink);
               }
 
@@ -462,15 +460,15 @@ hours = Math.floor(init / 3600);
               $("#diary_container").html("<h1>Error loading page</h1>");
             }
 
-				  })
-				  .fail(function() {
-				  $("#diary_container").html("<h1>System error, please try refreshing page</h1>");
-				  })
-				  .always(function() {
-				  
-				});
-		 }
-		 if(window.location.hash == "" ) {
+          })
+          .fail(function() {
+          $("#diary_container").html("<h1>System error, please try refreshing page</h1>");
+          })
+          .always(function() {
+          
+        });
+     }
+     if(window.location.hash == "" ) {
       var currentTime = new Date();
       var month = currentTime.getMonth() + 1;
       var day = currentTime.getDate();
@@ -478,12 +476,48 @@ hours = Math.floor(init / 3600);
         window.location.hash = "#month_" + year + "_" + month ;
       }
       updateView(window.location.hash);
-      		  
+            
 
       $(window).bind( 'hashchange', function(e) {
         updateView(window.location.hash);
        });
+  
+	/////////////////////////////////
+	
+	////////////////////////////
+	// exercise submit ajaxify
+	$("#addexForm").submit(function(event) {
+		$("#addExContainer").slideUp();
+    $("#statusMsg").text("Please wait...");
+    $("#saveButton").fadeOut();
+   
+		//$("#newWorkoutModal #statusMsg").html("<h2>Saving...</h2>");
+		$.ajax({
+			type: "POST",
+			url: "diary/ajax_logexercise",
+			data: $( this ).serialize() 
+		}
+			)
+		  .done(function() {
+		    $("#newWorkoutModal").modal('hide');
+        updateView(window.location.hash);
+			//location.reload();
+		  })
+		  .fail(function() {
+			//alert( "error" );
+		  })
+		  .always(function() {
+			
 		});
+		
+  		event.preventDefault();
+	});
+	//////////////////////////////////
+  
+  // diary navigation
+	$(function(){
+		  
+		 	});
 	
 	
 

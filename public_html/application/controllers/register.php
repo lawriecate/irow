@@ -48,7 +48,7 @@ class Register extends CI_Controller {
 				// registered succesfully
 				$this->user_model->login($email,$password);
 				$this->load->view('templates/header');
-				$this->load->view('auth/register_success',$data);
+				   redirect('register/setup');
 				$this->load->view('templates/footer');
 			} else {
 				$data['registration_failure'] = TRUE;

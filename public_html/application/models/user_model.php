@@ -19,6 +19,16 @@ Class User_model extends CI_Model
  			
  				if($user['password'] == $input_password_hash) {
  					// password matches this account's
+
+ 					 $sess_array = array();
+					 //foreach($result as $row)
+					 //{
+					   $sess_array = array(
+					     'id' => $user['id'],
+					     'email' => $user['email']
+					   );
+					   $this->session->set_userdata('logged_in', $sess_array);
+
  					return $user;
  				} else {
  					// the two encryptions DO NOT MATCH

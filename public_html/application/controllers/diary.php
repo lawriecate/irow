@@ -317,6 +317,7 @@ class Diary extends Secure_Controller {
 					$response["return"]["title"] = "Return to $month";
 					$response["return"]["link"] = "#month_".$year."_".$month;
 					$response["showAdd"] = TRUE;
+					$response["showAddDate"] = date("d-m-Y",strtotime($year."/".$month."/".$day));
 					$response["breadcrumb"] = array(
 						array('t'=>'Diary','href'=>"#life"),
 					array('t'=>$year,'href'=>"#year_$year"),
