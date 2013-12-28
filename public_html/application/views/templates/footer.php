@@ -8,16 +8,17 @@
 */ ?>
         
         <script src="<?php echo base_url(); ?>assets/js/vendor/bootstrap.min.js"></script>
-
+        
         <script src="<?php echo base_url(); ?>assets/js/plugins.js"></script>
         <script src="<?php echo base_url(); ?>assets/js/main.js"></script>
         
-
+        <? if(!isset($notracking)) { ?>
         <script>
             var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
             (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
             g.src='//www.google-analytics.com/ga.js';
             s.parentNode.insertBefore(g,s)}(document,'script'));
         </script>
+        <? } ?>
     </body>
 </html>

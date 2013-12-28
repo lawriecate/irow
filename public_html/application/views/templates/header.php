@@ -6,7 +6,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title></title>
+        <title><?= $title ?></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
 
@@ -38,7 +38,17 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="<?= base_url() ?>diary">Diary</a></li>
+            <li class="dropdown active">
+              <a href="<?= base_url() ?>dashboard" class="dropdown-toggle" data-toggle="dropdown">Me <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="<?= base_url() ?>dashboard">Dashboard</a></li>
+                <li><a href="<?= base_url() ?>diary">Diary</a></li>
+                <li><a href="<?= base_url() ?>logbook">Logbook</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">My Account</li>
+                <li><a href="<?= base_url() ?>profile/settings">Settings</a></li>
+              </ul>
+            </li>
             <li><a href="<?= base_url() ?>coach">Coach</a></li>
             <li class="dropdown">
               <a href="<?= base_url() ?>club" class="dropdown-toggle" data-toggle="dropdown">Club <b class="caret"></b></a>
@@ -52,13 +62,27 @@
                 <li><a href="#">One more separated link</a></li>
               </ul>
             </li>
+            <? if($this->l_auth->is_admin_logged_in()) { ?>
             <li class="dropdown">
               <a href="<?= base_url() ?>admin" class="dropdown-toggle" data-toggle="dropdown">Admin <b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li><a href="#">Manage Users</a></li>
-                <li><a href="#">Manage Clubs</a></li>
+                <li><a href="<?=base_url()?>admin/userlist">Manage Users</a></li>
+                <li><a href="<?=base_url()?>admin/clublist">Manage Clubs</a></li>
               </ul>
             </li>
+            <? } ?>
+            
+             
+              <form action="<?=base_url()?>search" type="GET" class="navbar-form navbar-right" role="search" style="width: 200px;">
+                 <div class="form-group">
+              <div class="input-group">
+                <input name="q" placeholder="Search" type="text" class="form-control">
+                <div class="input-group-btn">
+                  <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+                </div>
+              </div>
+              </div>
+            </form>
           </ul>
           <? /* <form action="<?=base_url()?>login/" class="navbar-form navbar-right">
             <div class="form-group">

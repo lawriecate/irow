@@ -3,8 +3,13 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 Class User_model extends CI_Model
 {
+	function __construct() {
+		$this->load->library('encrypt');
+	}
+
 	function login($email,$password)
 	{
+		
 		//$password = hash('sha512',$password);
 		$this->db->select('id,email,salt,password');
 		$this->db->from('users');
@@ -15,9 +20,11 @@ Class User_model extends CI_Model
 		{
 			$user = $query->row_array();
 			//$db_password_hash = hash('sha512', $user['password'].$user['salt']); // hash the password with the unique salt.
- 			$input_password_hash = hash('sha512',$password.$user['salt']);
- 			
- 				if($user['password'] == $input_password_hash) {
+ 			$db_password_hash = $this->encrypt->decode($user['password']);
+ 			$input_enc = hash('sha512',$password.$user['salt']);
+ 			//echo $db_password_hash; echo "<br>";
+ 			//echo $input_enc;
+ 				if($input_enc == $db_password_hash) {
  					// password matches this account's
 
  					 $sess_array = array();
@@ -41,6 +48,17 @@ Class User_model extends CI_Model
 		}
 	}
 
+	private function generate_password($id,$password) { // function to update user password using encryption
+
+		$random_salt = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), true)); // generate unique user id
+		$hpassword = $this->encrypt->encode(hash('sha512',$password.$random_salt));
+		$update = array(
+			'password'=>$hpassword,
+			'salt'=>$random_salt);
+
+		$this->db->update('users',$update,array('id'=>$id));
+	}
+
 	function register($email,$name,$password) {
 		$random_salt = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), true));
 		// Create salted password
@@ -48,12 +66,11 @@ Class User_model extends CI_Model
 		$newuser = array(
 			'email'=>$email,
 			'name'=>$name,
-			'password'=>$hpassword,
-			'salt'=>$random_salt,
 			'setup'=>0
 			);
 		if($this->db->insert('users',$newuser)) {
-			return TRUE;
+			$new_id = $this->db->insert_id();
+			return generate_password($new_id,$password);
 		} else {
 			return FALSE;
 		}
@@ -63,13 +80,14 @@ Class User_model extends CI_Model
 		$return = TRUE;
 		// edit user profile fields (dob, gender, club)
 		$update = array(
-			'id' => $this->l_auth->current_user_id(),
+			
 			'dob' => date( 'Y-m-d', strtotime($dob)),
 			'gender' => $gender,
 			'club' => $club,
 			'setup' => 1
 			);
-
+		$id = $this->l_auth->current_user_id();
+		$this->db->where('id',$id);
 		// send update query to database
 		$return = $this->db->update('users',$update);
 
@@ -92,8 +110,80 @@ Class User_model extends CI_Model
         return $return;
 	}
 
+	function update($id,$email,$name,$password,$dob,$gender) {
+		$update = array(
+			
+			'dob' => date( 'Y-m-d', strtotime($dob)),
+			'gender' => $gender,
+			'email' => $email,
+			'name' =>$name
+			);
+		$this->db->where('id',$id);
+		$this->db->update('users',$update);
+
+		if($password != FALSE) {
+			$this->generate_password($id,$password);
+		}
+
+	}
+
+	function set_suspension($id,$suspend) {
+		$this->db->where('id',$id);
+		if($suspend == TRUE) {
+			$this->db->update('users', array('disabled'=>'1'));
+		} else {
+			$this->db->update('users', array('disabled'=>NULL));
+		}
+		
+	}
+
+	function set_admin($id,$is_admin) {
+		if($is_admin == TRUE) {
+			$this->db->update('users', array('admin'=>'1'),array('id'=>$id));
+		} else {
+			$this->db->update('users', array('admin'=>NULL),array('id'=>$id));
+		}
+		
+	}
+
 	function get_by_id($id) {
 		$query = $this->db->get_where('users',array('id'=>$id));
 		return $query->row_array();
+	}
+
+	function search_users($page,$noItems,$search) {
+		$start = 10 * ($page);
+		//$end = 10 * $page;
+		$this->db->select('id,name,email,dob,admin');
+
+		$this->db->from('users');
+
+		if($search != "" ) {
+			$this->db->where("name",$search);
+			$this->db->or_where("email",$search);
+		}
+
+		$this->db->limit($noItems,$start);
+		$query = $this->db->get();
+
+		return $query->result_array();
+	}
+
+	function total_users() {
+		return $this->db->count_all('users');
+	}
+
+	function public_search($q) {
+		$this->db->select('id,email,name');
+		$this->db->from('users');
+		$this->db->like('name',$q);
+		$this->db->or_like('email',$q);
+		$this->db->limit(16);
+		$query = $this->db->get();
+		$results = $query->result_array();
+		foreach($results as $key => $item) {
+			$results[$key]['url'] = base_url() . 'people/' . $item['id'];
+		}
+		return $results;
 	}
 }

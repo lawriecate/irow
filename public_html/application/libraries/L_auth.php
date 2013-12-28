@@ -30,6 +30,15 @@ class L_auth {
 		return FALSE;
 	}
 
+	public function is_admin_logged_in() {
+		if($this->logged_in()) {
+			$user = $this->user_model->get_by_id($this->current_user_id());
+			return $user['admin'] == "1";
+		} else {
+			return FALSE;
+		}
+	}
+
 	public function logout() {
 		if($this->logged_in()) {
 			$this->session->sess_destroy();

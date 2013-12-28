@@ -4,8 +4,9 @@ class Coach extends Secure_Controller {
 
 	public function index()
 	{
-		$this->load->view('templates/header');
-		$this->load->view('coach/add');
+		$data['title'] = "Coach Assistant";
+		$this->load->view('templates/header',$data);
+		$this->load->view('coach/deny');
 		$this->load->view('templates/footer');
 	}
 }

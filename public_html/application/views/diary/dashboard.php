@@ -28,11 +28,11 @@
       </style>
   <div class="row">
     <div class="col-lg-12">
-      <div id="graphs">
+      <div id="graphs" class="hidden">
        &nbsp;
 
       </div>
-          <small>[White] 2K average [Red] &frac12; hour average</small>
+          <small class="hidden">[White] 2K average [Red] &frac12; hour average</small>
       <ol class="breadcrumb" id="diary_breadcrumb">
         <li class="active"><a href="#life">Diary</a></li>
         
@@ -93,22 +93,25 @@
               <? } ?>
             </select>
           </div>
-          <div class="form-group ir-dtsr">
-            <label for="inputSplit">Split (MM:SS.SS)</label>
-            <input type="text" class="form-control" id="inputSplit" name="inputSplit" placeholder="Enter 500m split">
+          <div class="row">
+              <div class="form-group ir-dtsr col-md-3">
+                <label for="inputSplit">Split (MM:SS.SS)</label>
+                <input type="text" class="form-control" id="inputSplit" name="inputSplit" placeholder="Enter 500m split">
+              </div>
+              <div class="form-group ir-dtsr ir-dt timeG col-md-3">
+                <label for="inputTime">Time (HH:MM:SS.SS)</label>
+                <input type="text" class="form-control" id="inputTime" name="inputTime" placeholder="Enter time">
+              </div>
+              <div class="form-group ir-dtsr ir-dt distanceG col-md-3">
+                <label for="inputDistance">Distance (Metres)</label>
+                <input type="text" class="form-control" id="inputDistance" name="inputDistance" placeholder="Enter distance">
+              </div>
+              <div class="form-group ir-dtsr col-md-3">
+                <label for="inputRate">Rate (strokes per minute)</label>
+                <input type="text" class="form-control" id="inputRate" name="inputRate" placeholder="Enter rate">
+              </div>
           </div>
-          <div class="form-group ir-dtsr ir-dt timeG">
-            <label for="inputTime">Time (HH:MM:SS.SS)</label>
-            <input type="text" class="form-control" id="inputTime" name="inputTime" placeholder="Enter time">
-          </div>
-          <div class="form-group ir-dtsr ir-dt distanceG">
-            <label for="inputDistance">Distance (Metres)</label>
-            <input type="text" class="form-control" id="inputDistance" name="inputDistance" placeholder="Enter distance">
-          </div>
-          <div class="form-group ir-dtsr">
-            <label for="inputRate">Rate (strokes per minute)</label>
-            <input type="text" class="form-control" id="inputRate" name="inputRate" placeholder="Enter rate">
-          </div>
+          
           <div class="form-group ir-dtsr ir-dt ir-n">
             <label for="inputNotes">Notes</label>
             <textarea class="form-control" name="inputNotes" id="inputNotes"></textarea>
@@ -132,12 +135,14 @@
   $(document).ready(function() {
 
      $("#inputDate").inputmask("d-m-y"); 
-      $("#inputRate").inputmask({mask:"99",greedy: false,numericInput: true,rightAlignNumerics: false} ); 
-     $("#inputSplit").inputmask({mask:"9:99.9", greedy: false,numericInput: true,rightAlignNumerics: false  });
-      $("#inputTime").inputmask({mask:"99:99.9", greedy: false,numericInput: true,rightAlignNumerics: false });
-       $("#inputDistance").inputmask({mask:"999999",greedy: false,numericInput: true,rightAlignNumerics: false  });
+      $("#inputRate").inputmask({mask:"9","repeat": 2 ,rightAlignNumerics: false,placeholder: ""} ); 
+     $("#inputSplit").inputmask({mask:"9:99.9", greedy: false,numericInput: true, rightAlignNumerics: false,placeholder: "  "});
+      $("#inputTime").inputmask({mask:"99:99.9", greedy: false,numericInput: true ,rightAlignNumerics: false,placeholder: "  "});
+       $("#inputDistance").inputmask({mask:"9","repeat": 6 ,rightAlignNumerics: false,placeholder: ""});
 
     $('#newWorkoutModal').on('show.bs.modal', function(e) {
+		
+	  	typeChange(0);
       $("#newWorkoutModal form")[0].reset();
       $("#addExContainer").show();
       $("#saveButton").show();
@@ -152,29 +157,30 @@
 
 
   	typecode = 1;
-  	function switchInputs(code) {
+  	function switchInputs(code,effects) {
   	//	$(".ir-dtsr").slideUp();
   		$(".ir-dtsr input").removeAttr("disabled");
   		switch (code) {
   			case 1:
-  				$(".ir-dtsr").slideDown();
+  				$(".ir-dtsr").slideDown(effects);
   				$("#inputSplit").focus();
   				break;
   			case 2:
-  				$(".ir-dt").slideDown();
+  				$(".ir-dt").slideDown(effects);
   				$("#inputTime").focus();
   				break;
   			case 3:
-  				$(".ir-n").slideDown();
+  				$(".ir-n").slideDown(effects);
   				$("#inputNotes").focus();
   				break;
   		}
 
   	}
-
-  	$("#inputType").change(function() {
-	  	type = $("#inputType").val();
-	  	lock = 0;
+	
+	function typeChange(effects) {
+		if(typeof(effects)==='undefined') effects = 400;
+		type = $("#inputType").val();
+	  
 	  	switch(type) {
 	  		<?
 	  		foreach($types as $key => $group):
@@ -189,18 +195,19 @@
 	  		?>
 	  		case "<?= $item['value'] ?>":
 	  			typecode = <?= $typecode ?>;
-	  			$(".ir-dtsr").slideUp();
+	  			$(".ir-dtsr").slideUp(effects,function() {
 	  			if(type == "ergd" || type == "waterd") {
 		  			$(".timeG").before($(".distanceG"));
-		  			lock = 1;
+		  			
 
 		  		} else if(type == "ergt" || type == "watert") {
 		  			$(".distanceG").before($(".timeG"));
-		  			lock = 2;
+		  			
 		  		} else {
-		  			lock = 0;
+		  			
 		  		}
-	  			switchInputs(<?= $typecode ?>);
+	  			switchInputs(<?= $typecode ?>,effects);
+				});
 	  			break;
 	  		<?
 	  			endforeach;
@@ -208,6 +215,10 @@
 	  		?>
 
 	  	}
+	}
+
+  	$("#inputType").change(function() {
+	  	typeChange();
 	  });
 
   	// calculate time/distance/split triangle for rowing exercises
@@ -243,6 +254,12 @@
   		seconds = distance / 500 * time_to_seconds(split);
   		return outputSplit(seconds);
   	}
+	
+	function splitCalc(distance,time) {
+  		seconds = (500 * time_to_seconds(time)) / distance;
+  		return outputSplit(seconds);
+  	}
+
 
 	function time_to_seconds(time) {
 		parts = time.split(':');
@@ -318,15 +335,23 @@ hours = Math.floor(init / 3600);
   	{
   		if(typecode == 1) {
 	  		// disable time if split entered
-	  		if(lock == 1 && validDistance()) {
+	  		if(validSplit() && validDistance() && validTime()) {
 	  			//$("#inputTime").attr("disabled","disabled");
-
-	  			$("#inputTime").val( timeCalc(	$("#inputDistance").val(),$("#inputSplit").val() ));
-	  		} else if( lock ==2  && validTime()) {
-		  		//$("#inputDistance").attr("disabled","disabled");
+				// ALL THREE inputs
+	  			
+	  		} else if( validSplit()  && validTime()) {
 
 		  		$("#inputDistance").val(distanceCalc(	$("#inputTime").val(), $("#inputSplit").val() ));
 		  	
+	  		}
+			else if( validSplit()  && validDistance()) {
+		  		
+				$("#inputTime").val( timeCalc(	$("#inputDistance").inputmask('unmaskedvalue'),$("#inputSplit").val() ));
+	  		}
+			else if( validDistance()  && validTime()) {
+		  		
+				$("#inputSplit").val( splitCalc(	$("#inputDistance").inputmask('unmaskedvalue'),$("#inputTime").val() ));
+		  		
 	  		}
 
 	  		
@@ -473,7 +498,7 @@ function updateView(hash) {
       var month = currentTime.getMonth() + 1;
       var day = currentTime.getDate();
       var year = currentTime.getFullYear();
-        window.location.hash = "#month_" + year + "_" + month ;
+        window.location.hash = "#day_" + year + "_" + month + "_" + day;
       }
       updateView(window.location.hash);
             

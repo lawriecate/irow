@@ -7,10 +7,12 @@ class Register extends CI_Controller {
 	   parent::__construct();
 	   $this->load->model('user_model');
 	   $this->load->model('club_model');
+	   
 	}
 	
 	public function index()
 	{
+		$data['title'] = "Register for iRow";
 		if($this->l_auth->logged_in() ) { // redirects users if they're already logged in
 			redirect();
 		}
@@ -30,7 +32,7 @@ class Register extends CI_Controller {
 		if($this->form_validation->run() == FALSE) // if the form is entered and validation fails
 		{
 			// show form + errors
-		    $this->load->view('templates/header');
+		    $this->load->view('templates/header',$data);
 			$this->load->view('auth/register',$data);
 			$this->load->view('templates/footer');
 		}
@@ -47,12 +49,12 @@ class Register extends CI_Controller {
 			if($registration) {
 				// registered succesfully
 				$this->user_model->login($email,$password);
-				$this->load->view('templates/header');
+				$this->load->view('templates/header',$data);
 				   redirect('register/setup');
 				$this->load->view('templates/footer');
 			} else {
 				$data['registration_failure'] = TRUE;
-				$this->load->view('templates/header');
+				$this->load->view('templates/header',$data);
 				$this->load->view('auth/register',$data);
 				$this->load->view('templates/footer');
 			}
@@ -150,6 +152,7 @@ class Register extends CI_Controller {
 	
 	public function setup()
 	{
+		$data['title'] = "Setup Your Account";
 		if(!$this->l_auth->logged_in() ) { // if the user isn't logged in redirect them
 			redirect('/login');
 		}

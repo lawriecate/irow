@@ -19,7 +19,11 @@ class Welcome extends CI_Controller {
 	 */
 	public function index()
 	{
+		if($this->l_auth->logged_in()==TRUE) {
+			redirect('dashboard');
+		}
 		$this->load->view('templates/header');
+		$data['title'] = "Welcome";
 		$this->load->view('templates/example');
 		$this->load->view('templates/footer');
 	}

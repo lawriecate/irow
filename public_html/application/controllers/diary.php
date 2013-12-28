@@ -16,14 +16,14 @@ class Diary extends Secure_Controller {
 		//print_r($this->activity_model->getActivityComponents('5275ad3e83'));
 		$start_of_week = time() - (7 * 60 * 60 * 24);
 		$end_of_week = time();
-		$this_week_data = ($this->activity_model->list_activities($start_of_week,$end_of_week,$this->l_auth->current_user_id() ));
+		//$this_week_data = ($this->activity_model->list_activities($start_of_week,$end_of_week,$this->l_auth->current_user_id() ));
 		$this->load->helper(array('form'));
 		$this->load->library('form_validation');
-		
-		$this->load->view('templates/header');
+		$data['title'] = "Diary";
+		$this->load->view('templates/header',$data);
 		$data['types'] = $this->activity_model->getTypes();	
-		$data['this_week'] = $this_week_data;
-
+		//$data['this_week'] = $this_week_data;
+		
 		$this->load->view('diary/dashboard',$data);
 		$this->load->view('templates/footer');
 		
@@ -78,8 +78,34 @@ class Diary extends Secure_Controller {
 	public function addmeasurement()
 	{
 		$this->load->view('templates/header');
+		$data['title'] = "Add Measurement";
 		$this->load->view('diary/addmeasurement');
 		$this->load->view('templates/footer');
+	}
+
+	public function ajax_updateexercise() {
+		$ref = $this->input->post('acid');
+		$id = $this->activity_model->get_id_from_ref($ref);
+
+		$update = array();
+		$label = $this->input->post('inputLabel');
+		if($label != "") {
+			$update['label'] = $label;
+		}
+		$notes = $this->input->post('inputNotes');
+		if($notes != "") {
+			$update['notes'] = $notes;
+		}
+		$st = $this->input->post('inputSt');
+		if($st != "") {
+			$update['sort_time'] = $st;
+		}
+
+		$response = $this->activity_model->update($id,$update);
+		$this->output
+		->set_content_type('application/json')
+		->set_output(json_encode($response));
+
 	}
 	
 	public function ajax_logexercise() {
@@ -152,6 +178,14 @@ class Diary extends Secure_Controller {
 		->set_content_type('application/json')
 		->set_output(json_encode($list));
 	}
+
+	public function ajax_logetypes() {
+		$types = $this->activity_model->get_types();
+
+		$this->output
+		->set_content_type('application/json')
+		->set_output(json_encode($types));
+	}
 	
 	public function ajax_diary_view() {
 		$hashtag = $this->input->get('tag');
@@ -204,7 +238,7 @@ class Diary extends Secure_Controller {
 					}
 
 					$graph1 = array(
-						'labels' => array("Jan","Feb","March","Apr","May","June","July","August","Sept","Oct","Nov","Dec"),
+						'labels' => array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"),
 						'datasets' => array(
 							array(
 								'fillColor' => "rgba(220,220,220,0.5)",

@@ -10,6 +10,7 @@ class Login extends CI_Controller {
 
 	public function index()
 	{
+		$data['title'] = "Log In";
 		$this->load->helper(array('form'));
 		$this->load->library('form_validation');
 
@@ -25,7 +26,7 @@ class Login extends CI_Controller {
 				$querystring = NULL;
 			}
 			$data['action'] = 'login' . $querystring;
-		    $this->load->view('templates/header');
+		    $this->load->view('templates/header',$data);
 			$this->load->view('auth/login',$data);
 			$this->load->view('templates/footer');
 		}

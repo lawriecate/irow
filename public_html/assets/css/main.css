@@ -3,20 +3,337 @@
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
+.dashMs {
+    font-size: 1.6em;
+    font-weight: bold;
+}
+.logForm > .row > div > a {
+    display: block;
+    width: 100%;
+    font-size:1.2em;
+    padding: 4px;
+  }
+
+/* DATATABLES */
+
+div.dataTables_length label {
+        font-weight: normal;
+        float: left;
+        text-align: left;
+}
+
+div.dataTables_length select {
+        width: 75px;
+}
+
+div.dataTables_filter label {
+        font-weight: normal;
+        float: right;
+}
+
+div.dataTables_filter input {
+        width: 16em;
+}
+
+div.dataTables_info {
+        padding-top: 8px;
+}
+
+div.dataTables_paginate {
+        float: right;
+        margin: 0;
+}
+
+div.dataTables_paginate ul.pagination {
+        margin: 2px;
+}
+
+table.dataTable,
+table.dataTable td,
+table.dataTable th {
+        -webkit-box-sizing: content-box;
+        -moz-box-sizing: content-box;
+        box-sizing: content-box;
+}
+
+
+table.dataTable {
+        clear: both;
+        margin-top: 6px !important;
+        margin-bottom: 6px !important;
+        max-width: none !important;
+}
+
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc,
+table.dataTable thead .sorting_asc_disabled,
+table.dataTable thead .sorting_desc_disabled {
+        cursor: pointer;
+}
+
+table.dataTable thead .sorting { background: url('../images/sort_both.png') no-repeat center right; }
+table.dataTable thead .sorting_asc { background: url('../images/sort_asc.png') no-repeat center right; }
+table.dataTable thead .sorting_desc { background: url('../images/sort_desc.png') no-repeat center right; }
+
+table.dataTable thead .sorting_asc_disabled { background: url('../images/sort_asc_disabled.png') no-repeat center right; }
+table.dataTable thead .sorting_desc_disabled { background: url('../images/sort_desc_disabled.png') no-repeat center right; }
+
+table.dataTable th:active {
+        outline: none;
+}
+
+/* Scrolling */
+div.dataTables_scrollHead table {
+        margin-bottom: 0 !important;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+}
+
+div.dataTables_scrollHead table thead tr:last-child th:first-child,
+div.dataTables_scrollHead table thead tr:last-child td:first-child {
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+}
+
+div.dataTables_scrollBody table {
+        border-top: none;
+        margin-bottom: 0 !important;
+}
+
+div.dataTables_scrollBody tbody tr:first-child th,
+div.dataTables_scrollBody tbody tr:first-child td {
+        border-top: none;
+}
+
+div.dataTables_scrollFoot table {
+        border-top: none;
+}
 
 
 
 
+/*
+ * TableTools styles
+ */
+.table tbody tr.active td,
+.table tbody tr.active th {
+        background-color: #08C;
+        color: white;
+}
+
+.table tbody tr.active:hover td,
+.table tbody tr.active:hover th {
+        background-color: #0075b0 !important;
+}
+
+.table tbody tr.active a {
+        color: white;
+}
+
+.table-striped tbody tr.active:nth-child(odd) td,
+.table-striped tbody tr.active:nth-child(odd) th {
+        background-color: #017ebc;
+}
+
+table.DTTT_selectable tbody tr {
+        cursor: pointer;
+}
+
+div.DTTT .btn {
+        color: #333 !important;
+        font-size: 12px;
+}
+
+div.DTTT .btn:hover {
+        text-decoration: none !important;
+}
+
+ul.DTTT_dropdown.dropdown-menu {
+  z-index: 2003;
+}
+
+ul.DTTT_dropdown.dropdown-menu a {
+        color: #333 !important; /* needed only when demo_page.css is included */
+}
+
+ul.DTTT_dropdown.dropdown-menu li {
+        position: relative;
+}
+
+ul.DTTT_dropdown.dropdown-menu li:hover a {
+        background-color: #0088cc;
+        color: white !important;
+}
+
+div.DTTT_collection_background {
+        z-index: 2002;        
+}
+
+/* TableTools information display */
+div.DTTT_print_info.modal {
+        height: 150px;
+        margin-top: -75px;
+        text-align: center;
+}
+
+div.DTTT_print_info h6 {
+        font-weight: normal;
+        font-size: 28px;
+        line-height: 28px;
+        margin: 1em;
+}
+
+div.DTTT_print_info p {
+        font-size: 14px;
+        line-height: 20px;
+}
 
 
 
+/*
+ * FixedColumns styles
+ */
+div.DTFC_LeftHeadWrapper table,
+div.DTFC_LeftFootWrapper table,
+div.DTFC_RightHeadWrapper table,
+div.DTFC_RightFootWrapper table,
+table.DTFC_Cloned tr.even {
+    background-color: white;
+}
+ 
+div.DTFC_RightHeadWrapper table ,
+div.DTFC_LeftHeadWrapper table {
+    margin-bottom: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+ 
+div.DTFC_RightHeadWrapper table thead tr:last-child th:first-child,
+div.DTFC_RightHeadWrapper table thead tr:last-child td:first-child,
+div.DTFC_LeftHeadWrapper table thead tr:last-child th:first-child,
+div.DTFC_LeftHeadWrapper table thead tr:last-child td:first-child {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+ 
+div.DTFC_RightBodyWrapper table,
+div.DTFC_LeftBodyWrapper table {
+    border-top: none;
+    margin-bottom: 0 !important;
+}
+ 
+div.DTFC_RightBodyWrapper tbody tr:first-child th,
+div.DTFC_RightBodyWrapper tbody tr:first-child td,
+div.DTFC_LeftBodyWrapper tbody tr:first-child th,
+div.DTFC_LeftBodyWrapper tbody tr:first-child td {
+    border-top: none;
+}
+ 
+div.DTFC_RightFootWrapper table,
+div.DTFC_LeftFootWrapper table {
+    border-top: none;
+}
 
 
+/* 
+fixed table header 
+*/
+/*!
+* jquery.fixedHeaderTable. The jQuery fixedHeaderTable plugin
+*
+* Copyright (c) 2011 Mark Malek
+* http://fixedheadertable.com
+*
+* Licensed under MIT
+* http://www.opensource.org/licenses/mit-license.php
+* 
+* http://docs.jquery.com/Plugins/Authoring
+* jQuery authoring guidelines
+*
+* Launch  : October 2009
+* Version : 1.3
+* Released: May 9th, 2011
+*
+* 
+* all CSS sizing (width,height) is done in pixels (px)
+*/
 
+/* @group Reset */
 
+.fht-table,
+.fht-table thead,
+.fht-table tfoot,
+.fht-table tbody,
+.fht-table tr,
+.fht-table th,
+.fht-table td {
+    /* position */
+    margin: 0;
+    
+    /* size */
+    padding: 0;
 
+    /* text */
+    font-size: 100%;
+    font: inherit;
+    vertical-align: top;
+    }
 
+.fht-table {
+    /* appearance */
+    border-collapse: collapse;
+    border-spacing: 0;
+    }
 
+/* @end */
 
+/* @group Content */
 
+.height600 {
+        height: 600px;
+        overflow-x: auto;
+        overflow-y: auto;
+}
+.fht-table-wrapper,
+.fht-table-wrapper .fht-thead,
+.fht-table-wrapper .fht-tfoot,
+.fht-table-wrapper .fht-fixed-column .fht-tbody,
+.fht-table-wrapper .fht-fixed-body .fht-tbody,
+.fht-table-wrapper .fht-tbody {
+    /* appearance */
+    overflow: hidden;
+    
+    /* position */
+    position: relative;
+    }
 
+    .fht-table-wrapper .fht-fixed-body .fht-tbody,
+    .fht-table-wrapper .fht-tbody {
+        /* appearance */
+        overflow: auto;
+        }
+
+        .fht-table-wrapper .fht-table .fht-cell {
+            /* appearance */
+            overflow: hidden;
+            
+            /* size */
+            height: 1px;
+            }
+    
+    .fht-table-wrapper .fht-fixed-column,
+    .fht-table-wrapper .fht-fixed-body {
+        /* position */
+        top: 0;
+        left: 0;
+        position: absolute;
+        }
+        
+    .fht-table-wrapper .fht-fixed-column {
+        /* position */
+        z-index: 1;
+        }
+
+/* @end */
