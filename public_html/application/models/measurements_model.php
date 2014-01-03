@@ -3,34 +3,43 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 Class Measurements_model extends CI_Model
 {
+	private function update_measurement($id,$value,$table,$field) {
+		// limits update to one a day
+		$this->db->select('id,DATE(timestamp)');
+		$this->db->from('measurements_'.$table);
+		$this->db->where('DATE(timestamp)',date("Y-m-d")); 
+		$this->db->limit(1);
+		$query = $this->db->get();
+		 
+		if($query->num_rows() == 0) {
+		// function inserts records into the  measurements table
+			$row = array(
+					'uid' => $id,
+					$field => $value
+				);
+			$this->db->insert('measurements_'.$table,$row);
+		} else {
+			// function updates that days record
+			$row = $query->row_array();
+			echo $row['id'];
+			$this->db->where('id',$row['id']);
+			$update = array($field=>$value,'timestamp'=>date("Y-m-d H:i:s"));
+			$this->db->update('measurements_'.$table,$update);
+		}
+	}
 	function update_height($id,$height)
 	{
-		// function inserts records into the height measurements table
-		$row = array(
-					'uid' => $id,
-					'height' => $height
-				);
-			$this->db->insert('measurements_heights',$row);
+		$this->update_measurement($id,$height,'heights','height');
 	}
 	
 	function update_armspan($id,$armspan)
 	{
-		// function inserts records into the height measurements table
-		$row = array(
-					'uid' => $id,
-					'armspan' => $armspan
-				);
-			$this->db->insert('measurements_armspans',$row);
+		$this->update_measurement($id,$armspan,'armspans','armspan');
 	}
 	
 	function update_weight($id,$weight)
 	{
-		// function inserts records into the height measurements table
-		$row = array(
-					'uid' => $id,
-					'weight' => $weight
-				);
-			$this->db->insert('measurements_weights',$row);
+		$this->update_measurement($id,$weight,'weights','weight');
 	}
 
 	function get_height($id)

@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-lg-12">
       <div class="page-header">
-      <h1>Dashboard</h2>
+      <h1>Dashboard</h1>
     </div>
     </div>
   </div>
@@ -135,13 +135,18 @@
       </div>  
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h3 class="panel-title">Body Tracking</h3>
+          <h3 class="panel-title">Body Tracking <small id="saveMsLoading" class="hidden pull-right">saving...</small></h3>
         </div>
         <div class="panel-body">
             <div class="row">
-              <div class="col-xs-4"><span class="dashMs"><?= $height ?><small>m</small></span></br>Height</div>
-              <div class="col-xs-4"><span class="dashMs"><?= $armspan ?><small>m</small></span></br>Arm Span</div>
-              <div class="col-xs-4"><span class="dashMs"><?= $weight ?><small>kg</small></span></br>Weight</div>
+              <div class="col-xs-4"><span class="dashMs"><input id="saveMsHeight" type="text" maxlength="3" value="<?= $height ?>"><small>m</small></span></br>Height</div>
+              <div class="col-xs-4"><span class="dashMs"><input id="saveMsArmSpan" type="text" maxlength="3" value="<?= $armspan ?>"><small>m</small></span></br>Arm Span</div>
+              <div class="col-xs-4"><span class="dashMs"><input id="saveMsWeight" type="text" maxlength="6" value="<?= $weight ?>"><small>kg</small></span></br>Weight</div>
+            </div>
+            <div class="row">
+              <div class="col-xs-12">
+               <?/* <button id="saveMsButton" class="btn btn-default">Save</button>*/ ?>
+              </div>
             </div>
 
           </div>
@@ -153,13 +158,43 @@
  
   <script type="text/javascript">
   $(document).ready(function() {
+////////////    MEASUREMENTS UPDATE   ////////////////////////////
+/*$("#saveMsButton").click(function() {
+  $.get('<?=base_url()?>dashboard/ajax_updatem?t=height&v=' + $("#saveMsHeight").val(), function() {
+    //alert('saved');
+  });
+  $.get('<?=base_url()?>dashboard/ajax_updatem?t=weight&v=' + $("#saveMsWeight").val(), function() {
+    //alert('saved');
+  });
+  $.get('<?=base_url()?>dashboard/ajax_updatem?t=armspan&v=' + $("#saveMsArmSpan").val(), function() {
+    //alert('saved');
+  });
+});*/
 
+$("#saveMsHeight").change(function() {
+  $("#saveMsLoading").removeClass("hidden").show();
+$.get('<?=base_url()?>dashboard/ajax_updatem?t=height&v=' + $("#saveMsHeight").val(), function() {
+    setTimeout(function() { $("#saveMsLoading").hide() },1000);
+  });
+});
+$("#saveMsWeight").change(function() {
+   $("#saveMsLoading").removeClass("hidden").show();
+$.get('<?=base_url()?>dashboard/ajax_updatem?t=weight&v=' + $("#saveMsWeight").val(), function() {
+   setTimeout(function() { $("#saveMsLoading").hide() },1000);
+  });
+});
+$("#saveMsArmSpan").change(function() {
+   $("#saveMsLoading").removeClass("hidden").show();
+$.get('<?=base_url()?>dashboard/ajax_updatem?t=armspan&v=' + $("#saveMsArmSpan").val(), function() {
+    setTimeout(function() { $("#saveMsLoading").hide() },1000);
+  });
+});
 ////////////    LOG EXERCISE FORM     ////////////////////////////
-     $("#logDate").inputmask("d-m-y"); 
+      $("#logDate").inputmask("d-m-y"); 
       $("#logRate").inputmask({mask:"9","repeat": 2 ,rightAlignNumerics: false,placeholder: ""} ); 
-     $("#logSplit").inputmask({mask:"9:99.9", greedy: false,numericInput: false, rightAlignNumerics: false,placeholder: "_"});
-      $("#logTime").inputmask({mask:"99:99.9", greedy: false,numericInput: false  ,rightAlignNumerics: false,placeholder: "_"});
-       $("#logDistance").inputmask({mask:"9","repeat": 6 ,rightAlignNumerics: false,placeholder: ""});
+      $("#logSplit").inputmask({mask:"h:s:s.s"});
+      $("#logTime").inputmask({mask:"h:s:s.s"});
+       $("#logDistance").inputmask({mask:"9","repeat": 6 ,rightAlignNumerics: false,placeholder: "0"});
        $("#failLink").click(function() {
         init();
         location.reload();
@@ -369,8 +404,44 @@
     ////*********************************/////////
     /////         split calculator        /////////
 function time_to_seconds(a){parts=a.split(":");parts.reverse();total_seconds=raise60=0;for(var b in parts)seconds=parts[b]*Math.pow(60,raise60),total_seconds+=seconds,raise60++;return total_seconds}
-function outputSplit(a,b){hours=Math.floor(a/3600);minutes=Math.floor(a/60%60);seconds=a%60;var c=function(a,b){var c=""+a,d=c.length,e=b.length;return b.substr(0,d<e?e-d:0)+c};fractional=-1!=a.toString().indexOf(".")?a.toString().substr(a.toString().indexOf(".")):".0";seconds=seconds.toString().substr(0,seconds.toString().indexOf("."));combined_seconds=c(seconds,"0")+fractional.substr(0,2);second_pad=10>seconds?"0":"";pretty=minutes+":"+second_pad+combined_seconds;!0==b&&(pretty=c(hours,"00")+":"+
-c(minutes,"00")+":"+second_pad+combined_seconds);return pretty};
+function outputSplit(init,longOutput) {
+hours = Math.floor(init / 3600);
+    minutes = Math.floor((init / 60) % 60);
+    seconds = init % 60;
+
+    var pad=function(num,field){
+        var n = '' + num;
+        var w = n.length;
+        var l = field.length;
+        var pad = w < l ? l-w : 0;
+        return field.substr(0,pad) + n;
+    };
+
+    if(init.toString().indexOf(".") != -1) {
+      fractional =  init.toString().substr(init.toString().indexOf("."));
+    } else {
+      fractional = ".0";
+    }
+    
+    seconds = seconds.toString().substr(0,seconds.toString().indexOf("."));
+    combined_seconds =  pad(seconds,"0") + fractional.substr(0,2);
+    
+    if(seconds < 10) {
+      second_pad = "0";
+    } else {
+      second_pad = "";
+    }
+
+    pretty = minutes + ":" + second_pad + combined_seconds;
+
+    
+
+    if(longOutput == true) {
+      pretty = pad(hours,"0") + ":"  + (minutes) + ":" + combined_seconds;
+    }
+
+    return pretty;
+  }
 
 function turn_on_erg_calc()
 {
@@ -382,12 +453,12 @@ function turn_on_erg_calc()
 
     function timeCalc(distance,split) {
       seconds = distance / 500 * time_to_seconds(split);
-      return outputSplit(seconds);
+      return outputSplit(seconds,true);
     }
   
   function splitCalc(distance,time) {
       seconds = (500 * time_to_seconds(time)) / distance;
-      return outputSplit(seconds);
+      return outputSplit(seconds,true);
     } 
 
       $("#logTime").change(function() {
@@ -489,10 +560,20 @@ function turn_on_erg_calc()
 
 
                         //////////////    POPOVERS    ////////////////////////////////////
+                        $(".pbLink").click(function() {
+                          return false;
+                        });
                             <? foreach($pbs as $key => $pb): 
                             if($pb['found'] == TRUE) { ?>
+
                             $("#pbLink<?=$key?>").popover({
-                              placement: 'left',
+                              placement: function() {
+                                width = $(window).width();
+                                if(width < 1200) {
+                                  return "top";
+                                }
+                                return "left";  
+                              },
                               html:true,
                               title: "<?= $pb['label']?> Progress",
                               content: '<div id="pbGraph<?=$key?>" style="width:250px; height:250px;background:url(\'<?=base_url()?>assets/img/tinyloader.gif\');background-repeat:no-repeat ;background-position:center center;">...</div>'
@@ -576,6 +657,15 @@ function turn_on_erg_calc()
 
                        dashboard.bind(control, chart);
                        dashboard.draw(data);
+                       function resizeHandler () {
+                            dashboard.draw(data);
+                        }
+                        if (window.addEventListener) {
+                            window.addEventListener('resize', resizeHandler, false);
+                        }
+                        else if (window.attachEvent) {
+                            window.attachEvent('onresize', resizeHandler);
+                        }
 
 /*
 

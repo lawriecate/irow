@@ -2,6 +2,7 @@
 
       
         <h1>Edit Club        </h1>
+        <? if (isset($saved)) { ?><div class="alert alert-success">Club record saved</div><? } ?>
           <?php echo validation_errors('<div class="alert alert-danger">','</div>'); ?>
       <?php echo form_open('/admin/edit_club/'.$club['id'],array('role'=>'form','class'=>'form-horizontal')); ?>
 
@@ -73,6 +74,30 @@
               </select>
           </div>
           
+
+            <div class="form-group">
+            <label for="verify" class="col-lg-2 control-label">Verification Status</label>
+             <div class="col-lg-6">
+              <div class="radio">
+                  <label class="text-danger">
+                    <input type="radio" name="verify" id="inputVerifyNo" value="2" <?= set_radio('verify','2',$club['verified'] == '2') ?> >
+                    <strong>Suspend</strong>
+                  </label>
+                </div>
+               <div class="radio">
+                  <label class="text-warning">
+                    <input type="radio" name="verify" id="inputVerifyNo" value="" <?= set_radio('verify','0',$club['verified'] == '') ?> >
+                    <strong>Unverified</strong>
+                  </label>
+                </div>
+                <div class="radio">
+                  <label class="text-success">
+                    <input type="radio" name="verify" id="inputVerifyYes" value="1" <?= set_radio('verify','1',$club['verified'] == '1') ?> >
+                    <strong>Verified</strong></label></div>
+                
+              </div><!-- /.col-lg-6 -->
+            
+          </div>
         
    
           

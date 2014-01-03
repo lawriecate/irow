@@ -19,6 +19,11 @@ Class Club_model extends CI_Model
 		return $query->row_array();
 	}
 
+	function get_all() {
+		$query= $this->db->get('clubs');
+		return $query->result_array();
+	}
+
 	function search_clubs($page,$noItems,$search) {
 		$start = 10 * ($page);
 		//$end = 10 * $page;
@@ -71,6 +76,53 @@ Class Club_model extends CI_Model
 			$results[$key]['url'] = base_url() . 'club/profile/' . $item['ref'];
 		}
 		return $results;
+	}
+
+	function is_level($club_id,$user_id,$level) {
+		$this->db->from('users_clubs');
+		$this->db->where('club_id',$club_id);
+		$this->db->where('user_id',$user_id);
+		$this->db->where('level',$level);
+		$query = $this->db->get();
+		return $query->num_rows() == 1;
+	}
+
+	function get_coaches($id) {
+		$this->db->from('users_clubs');
+		$this->db->where('club_id',$id);
+		$this->db->where('level', 'coach');
+		$this->db->join('users','users.id = users_clubs.user_id');
+		$query=  $this->db->get();
+		return $query->result_array();
+	}
+
+	function is_coach($club_id,$user_id) {
+		return $this->is_level($club_id,$user_id,'coach');
+	}
+
+
+
+	function get_managers($id) {
+		$this->db->from('users_clubs');
+		$this->db->where('club_id',$id);
+		$this->db->where('level', 'manager');
+		$this->db->join('users','users.id = users_clubs.user_id');
+		$query=  $this->db->get();
+		return $query->result_array();
+	}
+
+
+	function is_manager($club_id,$user_id) {
+		return $this->is_level($club_id,$user_id,'manager');
+	}
+
+	function get_authorized_users($id) {
+		$this->db->from('users_clubs');
+		$this->db->where('club_id',$id);
+		$this->db->where('(level = "coach" OR level = "manager")');
+		$this->db->join('users','users.id = users_clubs.user_id');
+		$query=  $this->db->get();
+		return $query->result_array();
 	}
 	
 }

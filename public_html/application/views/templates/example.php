@@ -14,8 +14,9 @@
 
    } ?></h1>
         <p>A training diary that everyone can use!</p>
-        <p><a href="<?= base_url() ?>register/" class="btn btn-primary btn-lg">Sign Up</a></p>
-      </div>
+        <p><a href="<?= base_url() ?>register/" class="btn btn-primary btn-lg">Sign Up</a>
+      <a href="<?= base_url() ?>login/" class="btn btn-primary btn-lg">Log In</a></p>
+    </div>
     </div>
 
     <div class="container">

@@ -44,7 +44,14 @@ class Admin extends Admin_Controller {
 				$add[4] = "Yes";
 			}
 
-			$add[5] = 'NA';
+			$memberships = $this->user_model->memberships($item['id']);
+			$club_label = '';
+			if(count($memberships) == 0) { $club_label = 'No Memberships'; } else {
+				foreach($memberships as $membership) {
+					$club_label .= $membership['name'] . ' (' . ucfirst($membership['level']) . ') <br>';
+				}
+			}
+			$add[5] = $club_label;
 			$proList[] = $add;
 			
 		}
@@ -86,6 +93,7 @@ class Admin extends Admin_Controller {
 	public function edit_user($id) {
 
 		$this->load->model('user_model');
+		$this->load->model('club_model');
 		$this->load->helper(array('form'));
 		$this->load->library('form_validation');
 
@@ -95,6 +103,7 @@ class Admin extends Admin_Controller {
 
 		$data['title'] = "Edit User";
 		$data['profile'] =  $this->user_model->get_by_id($id);
+		$data['memberships'] = $this->user_model->memberships($id);
 
 		if($this->input->post('email') != $data['profile']['email']) {
 			$this->form_validation->set_rules('email', 'Email', 'valid_email|trim|required|xss_clean|is_unique[users.email]'); // checks email is valid,entered,trims blank space,remove XSS script,and checks it's unique
@@ -130,11 +139,22 @@ class Admin extends Admin_Controller {
 			$gender = $this->input->post('gender');
 			$suspend = $this->input->post('suspend');
 			$admin = $this->input->post('admin');
+
+			$clubs = $this->input->post('clubs');
 			
 			$this->user_model->update($id,$email,$name,$password,$dob,$gender);
 			$this->user_model->set_suspension($id,$suspend);
 			$this->user_model->set_admin($id,$admin);
+			foreach($clubs as $club_id => $level) {
+				if($level == "REMOVE") {
+					$this->user_model->leave_club($id,$club_id);
+				} else {
+					$this->user_model->set_membership($id,$club_id,$level);
+				}
+			}
+			$data['saved'] = TRUE;
 			$data['profile'] =  $this->user_model->get_by_id($id);
+			$data['memberships'] = $this->user_model->memberships($id);
 			//print_r($data);
 			$this->load->view('templates/header',$data);
 			$this->load->view('admin/edit_user',$data);
@@ -169,6 +189,8 @@ class Admin extends Admin_Controller {
 		$this->form_validation->set_rules('addrCountry','Address Country', 'trim|xss_clean|min_length[2]|max_length[40]');
 		$this->form_validation->set_rules('addrPostcode','Address Postcode', 'trim|xss_clean|min_length[2]|max_length[10]');
 
+		$this->form_validation->set_rules('verify','Verification Status', 'greater_than[-1]|less_than[3]');
+
 	 
 		//$this->load->view('templates/header',$data);
 		//$this->load->view('admin/edit_user');
@@ -192,11 +214,13 @@ class Admin extends Admin_Controller {
 				'addr_2'=> $this->input->post('addr2'),
 				'addr_city'=> $this->input->post('addrCity'),
 				'addr_postcode'=> $this->input->post('addrPostcode'),
-				'addr_country'=> $this->input->post('addrCountry')
+				'addr_country'=> $this->input->post('addrCountry'),
+				'verified'=>$this->input->post('verify')
 				);
 			$this->club_model->update($id,$fields);
 	
 			$data['club'] =  $this->club_model->get_by_id($id);
+			$data['saved'] == TRUE;
 			//print_r($data);
 			$this->load->view('templates/header',$data);
 			$this->load->view('admin/edit_club',$data);
@@ -259,6 +283,44 @@ class Admin extends Admin_Controller {
 		$this->load->view('templates/header',$data);
 		$this->load->view('admin/clublist');
 		$this->load->view('templates/footer');
+	}
+
+	public function ajax_user_regclub()
+	{
+		$user = $this->input->get('id');
+		$club = $this->input->get('club');
+		$this->load->model('user_model');
+		$this->load->model('club_model');
+
+		$response['status'] = $this->user_model->join_club($user,$club);
+		$club_r = $this->club_model->get_by_id($club);
+		$name = 'clubs['.$club_r['id'].']';
+		$response['panel'] = ' <div class="panel panel-default">
+                     <div class="panel-body">
+                      '. $club_r['name'] .'
+                       <div class="radio">
+                          <label>
+                            <input type="radio" name="'.$name.'" id="clubs'.$club.'?>O1" value="athlete" checked="checked">
+                            Athlete
+                          </label>
+                        </div>
+                        <div class="radio">
+                          <label>
+                            <input type="radio" name="'.$name.'"  id="clubs'.$club.'O2" value="coach">
+                            Coach</label></div>
+                        <div class="radio">
+                          <label>
+                            <input type="radio" name="'.$name.'"  id="clubs'.$club.'O3" value="manager" >
+                            Manager</label></div>
+                        <div class="radio">
+                          <label>
+                            <input type="radio" name="'.$name.'"  id="clubs'.$club.'O4" value="REMOVE" >
+                            Remove Membership</label></div>
+                    </div><!-- /.col-lg-6 -->
+                  </div>';
+		$this->output
+		->set_content_type('application/json')
+		->set_output(json_encode($response));
 	}
 }
 

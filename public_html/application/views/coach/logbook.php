@@ -2,8 +2,8 @@
     <!-- Example row of columns -->
     <div class="row">
         <div class="col-lg-12">
-        	<h1>Personal Logbook</h1>
-        	<p><a role="button" href="<?=base_url()?>logbook/dl_csv" class="btn btn-default btn-xs">
+        	<h1>Coach Logbook</h1>
+        	<p><a role="button" href="<?=base_url()?>coach/dl_logbook_csv" class="btn btn-default btn-xs">
   <span class="glyphicon glyphicon-download-alt"></span> Download CSV
 </a></p>
 
@@ -12,18 +12,20 @@
           	<table id="lbTable" class="table table-hover table-responsive ">
 			  <thead>
 			  	<tr>
-			  		<th width="20%">Date</th>
-			  		<th width="20%">Label</th>
-			  		<th width="15%">Split</th>
-			  		<th width="15%">Time</th>
-			  		<th width="15%">Distance</th>
-			  		<th width="15%">Rate</th>
+			  		<th width="17%">Date</th>
+			  		<th width="13%">Person</th>
+			  		<th width="17%">Label</th>
+			  		<th width="13%">Split</th>
+			  		<th width="13%">Time</th>
+			  		<th width="13%">Distance</th>
+			  		<th width="13%">Rate</th>
 			  	</tr>
 			  </thead>
 			  <tbody>
 			  	<? foreach($activities as $activity): ?>
 			  	<tr>
 			  		<td><?= $activity['date'] ?></td>
+			  		<td><?= $activity['person'] ?></td>
 			  		<td><?= $activity['label'] ?></td>
 			  		<td><?= $activity['split'] ?></td>
 			  		<td><?= $activity['time'] ?></td>
@@ -44,7 +46,7 @@ $(function() {
 $(window).scroll(function() {
    if($(window).scrollTop() + $(window).height() == $(document).height() && page != false) {
        page = page + 1;
-       $.getJSON( '<?=base_url()?>logbook/ajax_loadpage?p='+page,
+       $.getJSON( '<?=base_url()?>coach/ajax_logbook_loadpage?p='+page,
        	function(data) {
        			
        		if($.isEmptyObject(data)) {
@@ -53,6 +55,7 @@ $(window).scroll(function() {
 	       		$.each(data,function(key,obj) {
 	       			var row = $('<tr></tr>');
 	       			row.append('<td>' + obj.date + '</td>');
+	       			row.append('<td>' + obj.person + '</td>');
 	       			row.append('<td>' + obj.label + '</td>');
 	       			row.append('<td>' + obj.split + '</td>');
 	       			row.append('<td>' + obj.time + '</td>');

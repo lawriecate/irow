@@ -20,7 +20,7 @@ class Login extends CI_Controller {
 		if($this->form_validation->run() == FALSE)
 		{
 			$data['display_redirected_message'] = isset($_GET['m']);
-			if($_GET['r']) {
+			if(isset($_GET['r'])) {
 				$querystring = '?r=' . $this->input->get('r');
 			} else {
 				$querystring = NULL;

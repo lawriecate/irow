@@ -21,6 +21,11 @@
         <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/main.css">
 <script src="<?php echo base_url(); ?>assets/js/vendor/jquery-1.10.1.min.js"></script>
         <script src="assets/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+         <script src="<?php echo base_url(); ?>assets/js/vendor/bootstrap.min.js"></script>
+        
+        <script src="<?php echo base_url(); ?>assets/js/plugins.js"></script>
+        <script src="<?php echo base_url(); ?>assets/js/main.js"></script>
+        
     </head>
     <body>
         <!--[if lt IE 7]>
@@ -37,42 +42,71 @@
           <a class="navbar-brand" href="<?= base_url() ?>">iRow</a>
         </div>
         <div class="navbar-collapse collapse">
+          <? if($this->l_auth->logged_in() ) { 
+            $controller =  $this->router->class;  
+            ?> 
           <ul class="nav navbar-nav">
-            <li class="dropdown active">
+            <li class="dropdown <?if(in_array($controller,array('me','dashboard','diary','profile','logbook'))){echo' active';}?>">
               <a href="<?= base_url() ?>dashboard" class="dropdown-toggle" data-toggle="dropdown">Me <b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li><a href="<?= base_url() ?>dashboard">Dashboard</a></li>
-                <li><a href="<?= base_url() ?>diary">Diary</a></li>
-                <li><a href="<?= base_url() ?>logbook">Logbook</a></li>
+                <li><a href="<?= base_url() ?>dashboard"><span class="glyphicon glyphicon-dashboard"></span> Dashboard</a></li>
+                <li><a href="<?= base_url() ?>diary"><span class="glyphicon glyphicon-calendar"></span> Diary</a></li>
+                <li><a href="<?= base_url() ?>logbook"><span class="glyphicon glyphicon-list"></span> Logbook</a></li>
                 <li class="divider"></li>
-                <li class="dropdown-header">My Account</li>
-                <li><a href="<?= base_url() ?>profile/settings">Settings</a></li>
+                <li class="dropdown-header">Your Account</li>
+                <li><a href="<?= base_url() ?>profile/settings"><span class="glyphicon glyphicon-wrench"></span> Settings</a></li>
               </ul>
             </li>
-            <li><a href="<?= base_url() ?>coach">Coach</a></li>
-            <li class="dropdown">
+
+
+             <? if($this->user_model->is_coach($this->l_auth->current_user_id())) { ?>
+            <li class="dropdown <?if($controller=='coach'){echo' active';}?>"><a href="<?= base_url() ?>coach" class="dropdown-toggle" data-toggle="dropdown">Coach <b class="caret"></b></a>
+             
+              <ul class="dropdown-menu">
+                <li><a href="<?= base_url() ?>coach/log"><span class="glyphicon glyphicon-edit"></span> Log Activity</a></li>
+                <li><a href="<?= base_url() ?>coach/analyse"><span class="glyphicon glyphicon-stats"></span> Analytics Tool</a></li>
+                <li><a href="<?= base_url() ?>diary"><span class="glyphicon glyphicon-calendar"></span> Diary</a></li>
+                <li><a href="<?= base_url() ?>coach/logbook"><span class="glyphicon glyphicon-list"></span> Logbook</a></li>
+               
+                
+              </ul>
+              
+            </li>
+            <? } else { ?>
+             <li><a href="<?= base_url() ?>coach">Coach</a></li>
+             
+            <? } ?>
+
+
+
+            <li class="dropdown <?if($controller=='club'){echo' active';}?>">
               <a href="<?= base_url() ?>club" class="dropdown-toggle" data-toggle="dropdown">Club <b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li><a href="#">Action</a></li>
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
+                <? foreach($this->user_model->memberships($this->l_auth->current_user_id()) as $club): ?>
+                  <li class="dropdown-header"><?= $club['name'] ?></li>
+                  <li><a href="<?=base_url()?>club/profile/<?=$club['ref']?>"><span class="glyphicon glyphicon-flag"></span> Group Page</a></li>
+                  <? if($club['level'] == 'manager') { ?>
+                  <li><a href="<?=base_url()?>club/manage/<?=$club['ref']?>"><span class="glyphicon glyphicon-wrench"></span> Manage</a></li>
+                  <? } ?>
+                  
+                <? endforeach; ?>
+               
                 <li class="divider"></li>
-                <li class="dropdown-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
+                <li class="dropdown-header">Your Clubs</li>
+                <li><a href="<?=base_url()?>club/"><span class="glyphicon glyphicon-plus"></span> Add Club</a></li>
               </ul>
             </li>
             <? if($this->l_auth->is_admin_logged_in()) { ?>
-            <li class="dropdown">
+            <li class="dropdown <?if($controller=='admin'){echo' active';}?>">
               <a href="<?= base_url() ?>admin" class="dropdown-toggle" data-toggle="dropdown">Admin <b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li><a href="<?=base_url()?>admin/userlist">Manage Users</a></li>
-                <li><a href="<?=base_url()?>admin/clublist">Manage Clubs</a></li>
+                <li><a href="<?=base_url()?>admin/userlist"><span class="glyphicon glyphicon-user"></span> Manage Users</a></li>
+                <li><a href="<?=base_url()?>admin/clublist"><span class="glyphicon glyphicon-flag"></span> Manage Clubs</a></li>
               </ul>
             </li>
             <? } ?>
             
-             
+            <? } ?> 
               <form action="<?=base_url()?>search" type="GET" class="navbar-form navbar-right" role="search" style="width: 200px;">
                  <div class="form-group">
               <div class="input-group">

@@ -11,6 +11,7 @@ class Profile extends Secure_Controller {
 	public function settings()
 	{
 		$me = $this->l_auth->current_user_id();
+		
 		$this->load->helper(array('form'));
 		$this->load->library('form_validation');
 
@@ -52,6 +53,7 @@ class Profile extends Secure_Controller {
 			$this->user_model->update($me,$email,$name,$password,$dob,$gender);
 			$data['profile'] =  $this->user_model->get_by_id($me);
 			//print_r($data);
+			$data['saved'] = TRUE;
 			$this->load->view('templates/header',$data);
 			$this->load->view('profile/settings',$data);
 			$this->load->view('templates/footer');

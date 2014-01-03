@@ -117,6 +117,24 @@ class Dashboard extends Secure_Controller {
 		->set_output(json_encode($data));
 	}
 
+	public function ajax_updatem() {
+		$type = $this->input->get('t');
+		$val = $this->input->get('v');
+		$me = $this->l_auth->current_user_id();
+		switch($type) {
+			case "height":
+				$this->measurements_model->update_height($me,$val);
+				break;
+			case "weight":
+				$this->measurements_model->update_weight($me,$val);
+				break;
+			case "armspan":
+				$this->measurements_model->update_armspan($me,$val);
+				break;
+		}
+		
+
+	}
 
 
 }

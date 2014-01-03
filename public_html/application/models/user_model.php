@@ -75,6 +75,16 @@ Class User_model extends CI_Model
 			return FALSE;
 		}
 	}
+
+	function create_invited_user($coach,$name) {
+		$newuser = array(
+			'name'=>$name,
+			'invitee'=>$coach,
+			'setup'=>3
+			);
+		$this->db->insert('users',$newuser);
+		return $this->db->insert_id();
+	}
 	
 	function setup($dob,$gender,$height,$armspan,$weight,$club) {
 		$return = TRUE;
@@ -83,13 +93,16 @@ Class User_model extends CI_Model
 			
 			'dob' => date( 'Y-m-d', strtotime($dob)),
 			'gender' => $gender,
-			'club' => $club,
+			
 			'setup' => 1
 			);
 		$id = $this->l_auth->current_user_id();
 		$this->db->where('id',$id);
 		// send update query to database
 		$return = $this->db->update('users',$update);
+
+		// register 1st club relationship
+		$this->join_club($id,$club);
 
 		// get special interface to access measurements model
 		$CI =& get_instance();
@@ -185,5 +198,76 @@ Class User_model extends CI_Model
 			$results[$key]['url'] = base_url() . 'people/' . $item['id'];
 		}
 		return $results;
+	}
+
+	function is_member_of($id,$club) {
+		return ($this->membership($id,$club)!=FALSE);
+	}
+
+	function membership($id,$club) {
+		// return false, or level
+		$this->db->from('users_clubs');
+		$this->db->where('user_id',$id);
+		$this->db->where('club_id',$club);
+		$this->db->limit(1);
+		$query = $this->db->get();
+		if($query->num_rows() > 0) {
+			// is a member
+			$row = $query->row_array();
+			return $row['level'];
+		} else {
+			// isn't a member
+			return FALSE;
+		}
+	}
+
+	function memberships($id) {
+		$this->db->from('users_clubs');
+		$this->db->join('clubs','clubs.id = users_clubs.club_id');
+		$this->db->where('user_id',$id);	
+		$query= $this->db->get();
+		return $query->result_array();
+	}
+
+	function is_coach($id) {
+		$this->db->from('users_clubs');
+		$this->db->where('user_id',$id);	
+		$this->db->where('(level = "coach" OR level = "manager")');
+		$query = $this->db->get();
+		return $query->num_rows() > 0;
+	}
+
+	function join_club($id,$club){
+		if($this->is_member_of($id,$club) == FALSE) {
+			$row = array(
+				'user_id'=>$id,
+				'club_id'=>$club);
+			return $this->db->insert('users_clubs',$row);
+		}
+	}
+
+	function set_membership($id,$club,$level) {
+		if($this->is_member_of($id,$club) == FALSE) {
+			$row = array(
+				'user_id'=>$id,
+				'club_id'=>$club,
+				'level'=>$level);
+			return $this->db->insert('users_clubs',$row);
+		} else {
+			$this->db->where("user_id",$id);
+			$this->db->where("club_id",$club);
+			$update = array(
+				'level'=>$level);
+			return $this->db->update("users_clubs",$update);
+		}
+	}
+
+	function leave_club($id,$club) {
+		if($this->is_member_of($id,$club) == TRUE) {
+			$row = array(
+				'user_id'=>$id,
+				'club_id'=>$club);
+			$this->db->delete('users_clubs',$row);
+		}
 	}
 }

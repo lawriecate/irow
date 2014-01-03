@@ -120,19 +120,33 @@ Class Activity_model extends CI_Model
 		//echo date("Y-m-d H:i:s",($start)) . '<br> ' . date("Y-m-d H:i:s",($end));
 	}*/
 
-	function list_activities($user,$page=1) {
-		$this->db->from('activities');
-		$this->db->where('user',$user);
+	function list_activities($user,$page,$by=NULL) {
+		$this->db->from('activities,users');
+		if($by != NULL) {
+			$this->db->where('creator',$user);
+		} else {
+			$this->db->where('user',$user);
+		}
+		$this->db->where('activities.user = users.id');
 		//$this->db->order_by("sort_time", "desc");
 		$this->db->order_by("added", "desc");
 		$offset = 30 * ($page - 1);
-		$this->db->limit(30,$offset);
+		if($page != NULL) {
+			$this->db->limit(30,$offset);
+		}
 		$query = $this->db->get();
 		$results = $query->result_array();
 		$return = array();
 		foreach($results as $result) {
+
+			
 			$row = array();
+
 			$row['date'] = date("M jS Y",strtotime($result['sort_time']));
+
+			if($by != NULL) {
+				$row['person'] = $result['name'];
+			}
 
 			$row['label'] = $result['label'];
 
@@ -704,6 +718,48 @@ Class Activity_model extends CI_Model
 			$return[$group][] = $type_object;
 		}
 		return $return;
+	}
+
+	function get_coaches_people($coach,$input) {
+		// get coaches permission
+		$this->db->from('users_clubs');
+		$this->db->where('user_id',$coach);
+		$this->db->where('(level = "coach" OR level = "manager")');
+		$query = $this->db->get();
+
+		$permitted_clubs = array();
+		foreach($query->result_array() as $permission) {
+			$permitted_clubs[] = $permission['club_id'];
+		}
+
+		$this->db->select("users.name,users_clubs.user_id,users_clubs.club_id, GROUP_CONCAT(clubs.name) as clubs");
+		$this->db->from('users,users_clubs,clubs');
+		$this->db->like('users.name',$input);
+		$this->db->group_by('users.id');
+		$this->db->where("(users.id = users_clubs.user_id AND clubs.id = users_clubs.club_id)");
+		//$this->db->or_where("users.invitee", $coach);
+		$clubs_where_phrase = "(";
+		foreach($permitted_clubs as $key => $permitted_club) {
+			if($key>0) {
+				$clubs_where_phrase .= " OR ";
+			}
+			$clubs_where_phrase .= " users_clubs.club_id = " . $permitted_club;
+		}
+		$clubs_where_phrase .= ")";
+	
+		$this->db->where($clubs_where_phrase);
+
+		$query = $this->db->get();
+		$from_club = $query->result_array();
+
+		$this->db->select("users.name,users.id as user_id,users.invitee");
+		$this->db->from('users');
+		$this->db->like('users.name',$input);
+		$this->db->where('users.invitee',$coach);
+		$query = $this->db->get();
+		$from_invited = $query->result_array();
+
+		return array_merge($from_club,$from_invited);
 	}
 
 }

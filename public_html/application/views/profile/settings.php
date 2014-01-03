@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-lg-12">
           <h2>My Account</h2>
-          <p></p>
+          <? if (isset($saved)) { ?><div class="alert alert-success">Your settings have been saved</div><? } ?>
        		<?php echo validation_errors('<div class="alert alert-danger">','</div>'); ?>
       <?php echo form_open('/profile/settings',array('role'=>'form','class'=>'')); ?>
 			  <div class="form-group">
