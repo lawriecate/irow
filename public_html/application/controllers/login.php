@@ -32,6 +32,7 @@ class Login extends CI_Controller {
 		}
 		else
 		{
+
 			if(isset($_GET['r'])) {
 				redirect($this->input->get('r'));
 			} else {

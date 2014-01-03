@@ -48,29 +48,30 @@ Class User_model extends CI_Model
 		}
 	}
 
-	private function generate_password($id,$password) { // function to update user password using encryption
-
+	private function generate_password($id,$password) {
+		 // function to update user password using encryption
 		$random_salt = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), true)); // generate unique user id
 		$hpassword = $this->encrypt->encode(hash('sha512',$password.$random_salt));
 		$update = array(
 			'password'=>$hpassword,
 			'salt'=>$random_salt);
-
-		$this->db->update('users',$update,array('id'=>$id));
+		$this->db->where('id',$id);
+		return $this->db->update('users',$update);
+		
 	}
 
 	function register($email,$name,$password) {
-		$random_salt = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), true));
+		/*$random_salt = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), true));
 		// Create salted password
-		$hpassword = hash('sha512', $password.$random_salt);
-		$newuser = array(
+		$hpassword = hash('sha512', $password.$random_salt);*/		$newuser = array(
 			'email'=>$email,
 			'name'=>$name,
-			'setup'=>0
+			'setup'=>2
 			);
+			
 		if($this->db->insert('users',$newuser)) {
 			$new_id = $this->db->insert_id();
-			return generate_password($new_id,$password);
+			return $this->generate_password($new_id,$password);
 		} else {
 			return FALSE;
 		}

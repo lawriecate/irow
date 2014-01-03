@@ -39,7 +39,7 @@
 			  </div>
 			  <div class="form-group">
                     <label class="col-lg-10">
-                        <input name="tosconsent" type="checkbox" name="checkbox" value="yes" <?= set_checkbox('tosconsent', 'yes') ?>> I agree to all your <a href="#">Terms of Services</a>
+                        <input name="tosconsent" type="checkbox" name="checkbox" value="yes" <?= set_checkbox('tosconsent', 'yes') ?>> I agree to all your <a href="http://beta.irow.co.uk/terms.html" target="_blank">Terms of Services</a>
                     </label>
                     <div class="col-lg-10">
                         <button type="submit" class="btn btn-success">Sign Up</button>
