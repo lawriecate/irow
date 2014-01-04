@@ -1,0 +1,5 @@
+<?
+header('Location: http://beta.irow.co.uk');
+?>
+<h1>Redirect</h1>
+<p><a href="http://beta.irow.co.uk">iRow Test Service</a></p>

@@ -11,9 +11,7 @@ class Secure_Controller extends MY_Controller
     if($this->l_auth->is_disabled() ) {
       show_error('Your account is suspended</br>Please contact support (support@irow.co.uk)',403);
     }
-    if($this->l_auth->is_admin_logged_in() ) {
-     // $data['admin'] = TRUE;
-    }
+    $this->l_auth->check_setup();
   }
 }
 

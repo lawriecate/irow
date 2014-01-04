@@ -153,9 +153,18 @@ class Register extends CI_Controller {
 	public function setup()
 	{
 		$data['title'] = "Setup Your Account";
+		$data['clubs'] = $this->club_model->get_all();
 		if(!$this->l_auth->logged_in() ) { // if the user isn't logged in redirect them
 			redirect('/login');
 		}
+		// get any previous user data
+		$me = $this->l_auth->current_user_id();
+		$user = $this->user_model->get_by_id($me);
+
+		if($user['setup'] == 1) {
+			//redirect('profile/settings');
+		}
+
 		$this->load->helper(array('form'));
 		
 		$this->load->library('form_validation');
@@ -186,8 +195,9 @@ class Register extends CI_Controller {
 			$weight = $this->input->post('weight');
 			$club = $this->input->post('club');
 			$setup = $this->user_model->setup($dob,$gender,$height,$armspan,$weight,$club);
+
 			if($setup) {
-				redirect('/diary');
+				redirect('/dashboard');
 			} else {
 				$this->load->view('templates/header');
 				$data['system_error'] = TRUE;

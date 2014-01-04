@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-lg-12">
       <div class="page-header">
-      <h1>Dashboard</h1>
+      <h1>Dashboard <small>Welcome <?=$name?></small></h1>
     </div>
     </div>
   </div>
@@ -192,9 +192,9 @@ $.get('<?=base_url()?>dashboard/ajax_updatem?t=armspan&v=' + $("#saveMsArmSpan")
 ////////////    LOG EXERCISE FORM     ////////////////////////////
       $("#logDate").inputmask("d-m-y"); 
       $("#logRate").inputmask({mask:"9","repeat": 2 ,rightAlignNumerics: false,placeholder: ""} ); 
-      $("#logSplit").inputmask({mask:"h:s:s.s"});
+      /*$("#logSplit").inputmask({mask:"h:s:s.s"});
       $("#logTime").inputmask({mask:"h:s:s.s"});
-       $("#logDistance").inputmask({mask:"9","repeat": 6 ,rightAlignNumerics: false,placeholder: "0"});
+       $("#logDistance").inputmask({mask:"9","repeat": 6 ,rightAlignNumerics: false,placeholder: "0"});*/
        $("#failLink").click(function() {
         init();
         location.reload();
@@ -453,12 +453,12 @@ function turn_on_erg_calc()
 
     function timeCalc(distance,split) {
       seconds = distance / 500 * time_to_seconds(split);
-      return outputSplit(seconds,true);
+      return outputSplit(seconds);
     }
   
   function splitCalc(distance,time) {
       seconds = (500 * time_to_seconds(time)) / distance;
-      return outputSplit(seconds,true);
+      return outputSplit(seconds);
     } 
 
       $("#logTime").change(function() {
@@ -484,16 +484,16 @@ function turn_on_erg_calc()
           
         } else if( validSplit()  && validTime()) {
 
-          $("#logDistance").val(distanceCalc( $("#logTime").val().replace("_","0"), $("#logSplit").val() ));
+          $("#logDistance").val(distanceCalc( $("#logTime").val(), $("#logSplit").val() ));
         
         }
       else if( validSplit()  && validDistance()) {
           
-        $("#logTime").val( timeCalc(  $("#logDistance").inputmask('unmaskedvalue'),$("#logSplit").val() ));
+        $("#logTime").val( timeCalc(  $("#logDistance").val(),$("#logSplit").val() ));
         }
       else if( validDistance()  && validTime()) {
           
-        $("#logSplit").val( splitCalc(  $("#logDistance").inputmask('unmaskedvalue'),$("#logTime").val().replace("_","0") ));
+        $("#logSplit").val( splitCalc(  $("#logDistance").val(),$("#logTime").val() ));
           
         }
 

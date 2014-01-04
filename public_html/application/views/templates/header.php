@@ -39,7 +39,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="<?= base_url() ?>">iRow</a>
+          <a class="navbar-brand" href="<?= base_url() ?>">iRow <small>Test Service</small></a>
         </div>
         <div class="navbar-collapse collapse">
           <? if($this->l_auth->logged_in() ) { 
@@ -64,8 +64,8 @@
              
               <ul class="dropdown-menu">
                 <li><a href="<?= base_url() ?>coach/log"><span class="glyphicon glyphicon-edit"></span> Log Activity</a></li>
-                <li><a href="<?= base_url() ?>coach/analyse"><span class="glyphicon glyphicon-stats"></span> Analytics Tool</a></li>
-                <li><a href="<?= base_url() ?>diary"><span class="glyphicon glyphicon-calendar"></span> Diary</a></li>
+                <li><a href="<?= base_url() ?><? /* coach/analyse */ ?>nya"><span class="glyphicon glyphicon-stats"></span> Analytics Tool</a></li>
+                <li><a href="<?= base_url() ?>nya"><span class="glyphicon glyphicon-calendar"></span> Diary</a></li>
                 <li><a href="<?= base_url() ?>coach/logbook"><span class="glyphicon glyphicon-list"></span> Logbook</a></li>
                
                 
@@ -86,7 +86,7 @@
                   <li class="dropdown-header"><?= $club['name'] ?></li>
                   <li><a href="<?=base_url()?>club/profile/<?=$club['ref']?>"><span class="glyphicon glyphicon-flag"></span> Group Page</a></li>
                   <? if($club['level'] == 'manager') { ?>
-                  <li><a href="<?=base_url()?>club/manage/<?=$club['ref']?>"><span class="glyphicon glyphicon-wrench"></span> Manage</a></li>
+                  <li><a href="<?=base_url()?><? /*club/manage/<?=$club['ref']?> */ ?>nya"><span class="glyphicon glyphicon-wrench"></span> Manage</a></li>
                   <? } ?>
                   
                 <? endforeach; ?>

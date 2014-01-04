@@ -14,6 +14,8 @@ class Dashboard extends Secure_Controller {
 	{
 		$data['title'] = "My Dashboard";
 		$me = $this->l_auth->current_user_id();
+		$user = $this->user_model->get_by_id($me);
+		$data['name'] = $user['name'];
 		$data['pbs'] = $this->activity_model->get_personal_bests($me);
 		//$data['pbs_2k'] = $this->activity_model->erg_history($me,"distance",2);
 		$data['height'] = $this->measurements_model->get_height($me);

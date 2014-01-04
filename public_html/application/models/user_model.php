@@ -102,9 +102,14 @@ Class User_model extends CI_Model
 		// send update query to database
 		$return = $this->db->update('users',$update);
 
-		// register 1st club relationship
-		$this->join_club($id,$club);
-
+		if($this->club_model->club_exists($club)) {
+			// register 1st club relationship
+			$this->join_club($id,$club);
+		} else {
+			$newClub = $this->club_model->add(array('name'=>$club));
+			$this->join_club($id,$newClub);
+			$this->set_membership($id,$newClub,'manager');
+		}
 		// get special interface to access measurements model
 		$CI =& get_instance();
         $CI->load->model('measurements_model');

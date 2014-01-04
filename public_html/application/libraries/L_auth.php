@@ -59,6 +59,20 @@ class L_auth {
 		}
 	}
 
+	public function check_setup() {
+		if($this->logged_in()) {
+			$user = $this->user_model->get_by_id($this->current_user_id());
+			$code = $user['setup'];
+			$this->db->from('users_setup_stages');
+			$this->db->where('id',$code);
+			$query = $this->db->get();
+			$stage = $query->row_array();
+			if($stage['redirect'] != "") {
+				redirect($stage['redirect']);
+			}
+		}
+	}
+
 }
 
 ?>

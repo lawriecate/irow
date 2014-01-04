@@ -1,5 +1,4 @@
 <div class="container">
-      <!-- Example row of columns -->
     <div class="row">
         <div class="col-lg-12">
           <h2>My Account</h2>
@@ -14,6 +13,10 @@
 			    <label class="control-label" for="inputName">Name</label>
 			    <input type="text" class="form-control" name="name" id="inputName" value="<?= $profile['name'] ?>">
 			  </div>
+        <div class="form-group">
+          <label class="control-label" for="inputClubs">Clubs:</label>
+          <input type="text" class="form-control" name="clubs" id="inputClubs" disabled="disabled" value="<?= $clubs ?>">
+        </div>
 			   <div class="form-group">
 			    <label class="control-label" for="inputPassword">Enter New Password:</label>
 			    <input type="password" class="form-control" name="password" id="inputPassword" value="">
@@ -43,6 +46,7 @@
               </div>
             </div>
           </div>
+          
           <div class="form-group">
             <div class="col-lg-10">
               <button type="submit" class="btn btn-success">Update Profile</button>

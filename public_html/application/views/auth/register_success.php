@@ -32,6 +32,7 @@
               </div>
             </div>
           </div>
+          <p>Optional: </p>
           <div class="form-group">
             <label class="col-lg-2 control-label" for="height">Height</label>
             
@@ -58,7 +59,7 @@
             
                 <div class="col-xs-2">
                   <div class="input-group ">
-                    <input name="weight" type="text" class="form-control" maxlength="3" value="<?= set_value('weight') ?>" >
+                    <input name="weight" type="text" class="form-control" maxlength="4" value="<?= set_value('weight') ?>" >
                     <span class="input-group-addon">kg</span> </div>
                 </div>
              
@@ -66,9 +67,11 @@
           <div class="form-group">
             <label class="col-lg-2 control-label" for="club">Club</label>
             <div class="col-lg-4">
-               <select name="club" class="form-control">
-                  <optgroup label="Suggested">
-                    <option value="1">Dart Totnes</option>
+               <select id="inputClub" name="club" class="form-control">
+                  <optgroup label="All Clubs">
+                    <? foreach($clubs as $club): ?>
+                      <option value="<?=$club['id']?>"><?=$club['name']?></option>
+                    <? endforeach; ?>
                   </optgroup>
                   <optgroup label="Other Options">
                     <option value="0">*** No Club ***</option>
@@ -86,3 +89,10 @@
     </div>
   </div>
 </div>
+<script type="text/javascript">
+$(document).ready(function() {
+  $("#inputClub").selectize({
+    create: true
+  });
+});
+</script>

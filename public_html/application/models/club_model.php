@@ -53,7 +53,12 @@ Class Club_model extends CI_Model
 	}
 
 	function add($fields) {
-		return $this->db->insert('clubs',$fields);
+		if(!isset($fields['ref'])) {
+			$this->load->helper('url');
+			$fields['ref'] = url_title($fields['name']);
+		}
+		$this->db->insert('clubs',$fields);
+		return $this->db->insert_id();
 	}
 	
 	function list_countries() {

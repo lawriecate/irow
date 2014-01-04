@@ -17,6 +17,10 @@ class Profile extends Secure_Controller {
 
 		$data['title'] = "Account Settings";
 		$data['profile'] =  $this->user_model->get_by_id($me);
+		$data['clubs'] = '';
+		foreach ($this->user_model->memberships($me) as $key => $club) {
+			$data['clubs'] .= $club['name'] . ', ';
+		}
 
 		if($this->input->post('email') != $data['profile']['email']) {
 			$this->form_validation->set_rules('email', 'Email', 'valid_email|trim|required|xss_clean|is_unique[users.email]'); // checks email is valid,entered,trims blank space,remove XSS script,and checks it's unique

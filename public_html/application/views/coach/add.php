@@ -230,11 +230,11 @@
     addRow();
     //init();
     $("#inputDate").inputmask("d-m-y"); 
-    $("#inputRateCopy").inputmask({mask:"9","repeat": 2 ,rightAlignNumerics: false,placeholder: ""} ); 
+    /*$("#inputRateCopy").inputmask({mask:"9","repeat": 2 ,rightAlignNumerics: false,placeholder: ""} ); 
     $("#inputSplitCopy").inputmask({mask:"s:s.s"});
     $("#inputTimeCopy").inputmask({mask:"h:s:s.s"});
     $("#inputDistanceCopy").inputmask({mask:"9","repeat": 6 ,rightAlignNumerics: false,placeholder: "0"});
-    
+    */
     $('#inputType').selectize();
 
       
@@ -256,10 +256,11 @@
       tbody.append(tr);
       
     $(".trate input").inputmask({mask:"9","repeat": 2 ,rightAlignNumerics: false,placeholder: ""} ); 
-    $(".tsplit input").inputmask({mask:"s:s.s"});
-    $(".ttime input").inputmask({mask:"h:s:s.s"});
-    $(".tdistance input").inputmask({mask:"9","repeat": 6 ,rightAlignNumerics: false,placeholder: "0"});
+    //$(".tsplit input").inputmask({mask:"s:s.s"});
+    //$(".ttime input").inputmask({mask:"h:s:s.s"});
+    //$(".tdistance input").inputmask({mask:"9","repeat": 6 ,numericInput: true,placeholder: "0"});
 
+    turn_on_erg_calc(tr.find(".ttime input"),tr.find(".tdistance input"),tr.find(".tsplit input"));
 
       
       tr.find('input.nameselector').selectize({
@@ -335,7 +336,16 @@
     });
 
     function isValid(data) {
-      return true;
+      var valid = true;
+      $.each(data,function(key,obj) {
+  
+        if(obj.name == "person") {
+          if(obj.value == "") {
+            valid= false;
+          }
+        }
+      });
+      return valid;
     }
 
     function saveAll() {
@@ -371,6 +381,108 @@
         }
       });
     }
+
+      ////*********************************/////////
+    /////         split calculator        /////////
+function time_to_seconds(a){parts=a.split(":");parts.reverse();total_seconds=raise60=0;for(var b in parts)seconds=parts[b]*Math.pow(60,raise60),total_seconds+=seconds,raise60++;return total_seconds}
+function outputSplit(init,longOutput) {
+hours = Math.floor(init / 3600);
+    minutes = Math.floor((init / 60) % 60);
+    seconds = init % 60;
+
+    var pad=function(num,field){
+        var n = '' + num;
+        var w = n.length;
+        var l = field.length;
+        var pad = w < l ? l-w : 0;
+        return field.substr(0,pad) + n;
+    };
+
+    if(init.toString().indexOf(".") != -1) {
+      fractional =  init.toString().substr(init.toString().indexOf("."));
+    } else {
+      fractional = ".0";
+    }
+    
+    seconds = seconds.toString().substr(0,seconds.toString().indexOf("."));
+    combined_seconds =  pad(seconds,"0") + fractional.substr(0,2);
+    
+    if(seconds < 10) {
+      second_pad = "0";
+    } else {
+      second_pad = "";
+    }
+
+    pretty = minutes + ":" + second_pad + combined_seconds;
+
+    
+
+    if(longOutput == true) {
+      pretty = pad(hours,"0") + ":"  + (minutes) + ":" + combined_seconds;
+    }
+
+    return pretty;
+  }
+
+function turn_on_erg_calc(timeObj,distanceObj,splitObj)
+{
+    function validSplit(){return""!=splitObj.val()?!0:!1}function validTime(){return""!=timeObj.val()?!0:!1}function validDistance(){return""!=distanceObj.val()?!0:!1};
+
+    function distanceCalc(time,split) {
+      return Math.floor(500 * (time_to_seconds(time) / time_to_seconds(split)) );
+    }
+
+    function timeCalc(distance,split) {
+      seconds = distance / 500 * time_to_seconds(split);
+      return outputSplit(seconds);
+    }
+  
+  function splitCalc(distance,time) {
+      seconds = (500 * time_to_seconds(time)) / distance;
+      return outputSplit(seconds);
+    } 
+
+      timeObj.change(function() {
+      recalculate();
+      //$("#logRate").focus();
+    });
+
+    distanceObj.change(function() {
+      recalculate();
+      //$("#logRate").focus();
+    });
+
+    splitObj.change(function( ) {
+      recalculate();
+    });
+
+    function recalculate()
+    {
+        // disable time if split entered
+        if(validSplit() && validDistance() && validTime()) {
+          //$("#inputTime").attr("disabled","disabled");
+        // ALL THREE inputs
+          
+        } else if( validSplit()  && validTime()) {
+
+          distanceObj.val(distanceCalc( timeObj.val(), splitObj.val() ));
+        
+        }
+      else if( validSplit()  && validDistance()) {
+          
+        timeObj.val( timeCalc( distanceObj.val(),splitObj.val() ));
+        }
+      else if( validDistance()  && validTime()) {
+          
+        splitObj.val( splitCalc( distanceObj.val(),timeObj.val() ));
+          
+        }
+
+        
+      
+    }
+}
+//////////////////////////////////////////////////
 
     // connection checks
     function checkConnection() {
