@@ -372,6 +372,7 @@
             });
             row.find('td div').slideUp(function() {
               row.fadeOut();
+			  row.remove();
             });
           }).fail(function() {
             row.addClass("danger");

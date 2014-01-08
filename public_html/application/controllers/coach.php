@@ -196,6 +196,131 @@ class Coach extends Secure_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode(TRUE));
 	}
+	
+	public function analyse() {
+		$data['title'] = "Analyse Performance";
+		$data['graphs'] = array(
+			array('name'=>'2K erg',
+				'type'=>'ergd',
+				'distance'=>2000),
+			array('name'=>'5K erg',
+				'type'=>'ergd',
+				'distance'=>2000),
+			array('name'=>'&frac12; hour erg',
+				'type'=>'ergt',
+				'time'=>30 * 60)
+		);
+		$this->load->view('templates/header',$data);
+		$this->load->view('coach/analyse',$data);
+		$this->load->view('templates/footer');
+	}
+
+	public function ajax_graphdata()
+	{
+		$me = $this->l_auth->current_user_id();
+		$distance = $this->input->get('distance');
+		$time = $this->input->get('time');
+		$type_filter = $this->input->get('type');
+		$people = explode(",",$this->input->get('who'));
+
+		$rstart = strtotime($this->input->get('start'));
+		$year = date("Y",$rstart);
+		$month = date("m",$rstart);
+		$day = date("d",$rstart);
+		//$rstart_js = "Date(".$year."," . ($month-1) . "," . $day .")";
+
+		$rstart_js = $year."," . ($month) . "," . $day ;
+		
+
+		$rend = strtotime($this->input->get('end'));
+		$year = date("Y",$rend);
+		$month = date("m",$rend);
+		$day = date("d",$rend);
+		//$rend_js = "Date(".$year."," . ($month-1) . "," . $day .")";
+		$rend_js = $year."," . ($month) . "," . $day;
+
+		$valid = TRUE;
+
+		$valid_people = $this->activity_model->get_coaches_people($me,"");
+		
+		if(count($people) > 0) {
+			foreach($people as $person) {
+				$found = FALSE;
+				foreach($valid_people as $valid_person) {
+					
+					if($person == $valid_person['user_id']) {
+						$found = TRUE;
+						break;
+					}
+				}
+				if($found == FALSE) {
+					$valid = FALSE;
+				}
+			}
+		}
+
+		$response = array();
+		$response['cols'] = array(
+				array('type'=>'date','label'=>'Date'),
+			);
+		foreach ($people as $key => $person) {
+			$record= $this->user_model->get_by_id($person);
+			$name = $record['name'];
+			$response['cols'][] = array('type'=>'number','label'=>$name);
+		}
+		$response['rows'] = array();
+		if($valid == TRUE) {
+			//$response['people'] = $people;
+			
+			$filter = array(
+				'sort_time >= ' => date("Y-m-d",$rstart),
+				'sort_time <= ' => date("Y-m-d",$rend),
+				'type' => '1'
+				);
+			$activities = $this->activity_model->search_activities($filter,$people);
+			$preprocess = array();
+			foreach($activities as $activity) {
+				$ts = strtotime($activity['sort_time']);
+
+				//$tooltip = '<div style="width:260px;max-height:400px;overflow:scroll" class="well"><h3>Activity Detail</h3><p>'.$activity['avg_split'].'</p></div>';
+				foreach ($people as $person) {
+					
+						//$preprocess[$ts][$person] = NULL;
+					
+				}
+				foreach ($people as $person) {
+					if($person == $activity['user']) {
+						$preprocess[$ts][$person] = $activity['avg_split'];
+					}
+				}
+				
+			}
+//print_r($preprocess);
+			$finalRows = array();
+			foreach($preprocess as $ts => $prerow) {
+				$date = "Date" . date("(Y,",$ts) . (date("m",$ts) - 1) . date(",d)",$ts);
+				$row = array(
+					array('v'=>$date)
+				);
+				foreach($prerow as $person => $indscore) {
+					$row[]=array('v'=>$indscore);
+				}
+				$finalRows[]=array('c'=>$row);
+
+			}
+			$response['rows'] = $finalRows;
+			//print_r($response);
+
+		//	$response['gbegin'] = $rstart_js;
+		//	$response['gend'] = $rend_js;
+		} else {
+			$response['error'] = TRUE;
+		}
+
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	}
 }
 
 /* End of file diary.php */

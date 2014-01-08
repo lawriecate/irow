@@ -220,7 +220,7 @@ class Admin extends Admin_Controller {
 			$this->club_model->update($id,$fields);
 	
 			$data['club'] =  $this->club_model->get_by_id($id);
-			$data['saved'] == TRUE;
+			$data['saved'] = TRUE;
 			//print_r($data);
 			$this->load->view('templates/header',$data);
 			$this->load->view('admin/edit_club',$data);

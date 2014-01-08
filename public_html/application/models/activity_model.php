@@ -83,17 +83,14 @@ Class Activity_model extends CI_Model
 		$label = "Activity";
 		switch($type['value']) {
 			case "ergd": 
+				
 				$distance = $activity['total_distance'];
-				$rounded = round(($distance/1000),1);
-
-				$label = $rounded."K erg";
-				break;
-			case "ergt":
-				$time = $activity['total_time'];
-				$rounded = round(($time/60),1);
-				$label = $rounded." min erg";
-				break;
-			
+				if($distance > 0) {
+					$rounded = round(($distance/1000),1);
+	
+					$label = $rounded."K erg";
+					break;
+				}
 			default:
 			$time = $activity['total_time'];
 				if($time> 0) {
@@ -261,10 +258,6 @@ Class Activity_model extends CI_Model
 				);
 			$this->db->insert('activities_components',$processed);
 		}
-	}
-
-	private function activityStats($acid) {
-
 	}
 
 	public function getActivityComponents($acid) {
@@ -760,6 +753,20 @@ Class Activity_model extends CI_Model
 		$from_invited = $query->result_array();
 
 		return array_merge($from_club,$from_invited);
+	}
+
+	function search_activities($fields,$users) {
+		$this->db->from('activities');
+		$this->db->where($fields);
+
+		$user_where = 'user IN (' . implode(",",$users) . ')';
+
+		$this->db->where($user_where);
+		//$this->db->order_by("sort_time", "desc");
+		$query = $this->db->get();
+		$results = $query->result_array();
+		//echo ' 			' . $this->db->last_query() . '         ';
+		return $results;
 	}
 
 }

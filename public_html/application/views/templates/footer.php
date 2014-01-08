@@ -1,7 +1,7 @@
 <hr>
 
       <footer>
-        <p>&copy; LGC 2013 <? if($this->l_auth->logged_in()) { ?>- <a href="<?= site_url('logout') ?>">Log Out</a> <? } ?> - <a href="http://irow.uservoice.com" target="_blank">Help &amp; Support</a> - Tel: <a href="tel:00441315104769">01315104769</a> - <a href="<?=base_url()?>terms.html" target="_blank">Terms Of Service</a> - <a href="<?=base_url()?>privacy.html" target="_blank">Privacy Policy</a></p>
+        <p>&copy; LGC 2013 <? if($this->l_auth->logged_in()) { ?>- <a href="<?= site_url('logout') ?>">Log Out</a> <? } ?> - <a href="http://irow.uservoice.com" target="_blank">Help &amp; Support</a> <? /*- Tel: <a href="tel:00441315104769">01315104769</a> - <a href="<?=base_url()?>terms.html" target="_blank">Terms Of Service</a> - <a href="<?=base_url()?>privacy.html" target="_blank">Privacy Policy</a>*/?></p>
       </footer>
     </div> <!-- /container -->      <? /*  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="assets/js/vendor/jquery-1.10.1.min.js"><\/script>')</script>
@@ -38,11 +38,15 @@ UserVoice.push(['set', {
 
 // Identify the user and pass traits
 // To enable, replace sample data with actual user traits and uncomment the line
+<? 
+if($this->l_auth->logged_in()) {
+$user = $this->user_model->get_by_id($this->l_auth->current_user_id()); 
+  ?>
 UserVoice.push(['identify', {
-  //email:      'john.doe@example.com', // User’s email address
-  //name:       'John Doe', // User’s real name
-  //created_at: 1364406966, // Unix timestamp for the date the user signed up
-  //id:         123, // Optional: Unique id of the user (if set, this should not change)
+  email:      '<?=$user['email']?>', // User’s email address
+  name:       '<?=$user['name']?>', // User’s real name
+  created_at: '<?=strtotime($user['signup'])?>', // Unix timestamp for the date the user signed up
+  id:         '<?=$user['id']?>', // Optional: Unique id of the user (if set, this should not change)
   //type:       'Owner', // Optional: segment your users by type
   //account: {
   //  id:           123, // Optional: associate multiple users with a single account
@@ -53,7 +57,7 @@ UserVoice.push(['identify', {
   //  plan:         'Enhanced' // Plan name for the account
   //}
 }]);
-
+<? } ?>
 // Add default trigger to the bottom-right corner of the window:
 UserVoice.push(['addTrigger', { mode: 'contact', trigger_position: 'bottom-right' }]);
 
