@@ -68,15 +68,15 @@
                 <div class="row">
                     <div class="form-group col-xs-4" id="logTimeGroup">
                       <label for="logTime">Time</label>
-                      <input type="text" class="form-control" id="logTime" name="time" >
+                      <input title="Enter time in HH:MM:SS format" type="text" class="form-control" id="logTime" name="time" >
                     </div>
                     <div class="form-group col-xs-4" id="logDistanceGroup">
                       <label for="logDistance">Distance</label>
-                      <input type="text" class="form-control" id="logDistance" name="distance" >
+                      <input title="Enter distance in meters" type="text" class="form-control" id="logDistance" name="distance" >
                     </div>
                     <div class="form-group col-xs-4" id="logSplitGroup">
                       <label for="logSplit">Split</label>
-                      <input type="text" class="form-control" id="logSplit" name="split">
+                      <input title="Enter 500m split in HH:MM:SS format" type="text" class="form-control" id="logSplit" name="split">
                     </div>
                 </div>
                 <div class="row">
@@ -139,9 +139,9 @@
         </div>
         <div class="panel-body">
             <div class="row">
-              <div class="col-xs-4"><span class="dashMs"><input id="saveMsHeight" type="text" maxlength="3" value="<?= $height ?>"><small>m</small></span></br>Height</div>
-              <div class="col-xs-4"><span class="dashMs"><input id="saveMsArmSpan" type="text" maxlength="3" value="<?= $armspan ?>"><small>m</small></span></br>Arm Span</div>
-              <div class="col-xs-4"><span class="dashMs"><input id="saveMsWeight" type="text" maxlength="6" value="<?= $weight ?>"><small>kg</small></span></br>Weight</div>
+              <div class="col-xs-4"><span class="dashMs"><input title="Enter your new height measurement" id="saveMsHeight" type="text" maxlength="3" value="<?= $height ?>"><small>m</small></span></br>Height</div>
+              <div class="col-xs-4"><span class="dashMs"><input  title="Enter your new arm span measurement" id="saveMsArmSpan" type="text" maxlength="3" value="<?= $armspan ?>"><small>m</small></span></br>Arm Span</div>
+              <div class="col-xs-4"><span class="dashMs"><input title="Enter your new weight measurement" id="saveMsWeight" type="text" maxlength="6" value="<?= $weight ?>"><small>kg</small></span></br>Weight</div>
             </div>
             <div class="row">
               <div class="col-xs-12">

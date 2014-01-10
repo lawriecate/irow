@@ -8,7 +8,7 @@
       <div class="col-lg-3">
 		<p>Graph Options:</p>
 		<form id="graphForm" role="form">
-		  <div class="form-group">
+		  <div class="form-group" title="Select a type of graph from the dropdown list">
 		    <label class="sr-only" for="inputGraphType">Graph Type</label>
 		    <select class="form-control" name="inputGraphType" id="inputGraphType">
 		    <? foreach($graphs as $key => $graph): ?>
@@ -16,14 +16,14 @@
             <? endforeach; ?>
 	      </select>
 		  </div>
-          <div class="form-group">
+          <div class="form-group" title="Click the dates on the left and right to set a start and end date for the graph">
               <div class="input-daterange input-group input-group-sm" id="datepicker">
                 <input type="text" class="form-control" name="inputStart" id="inputStart" value="<?=date("d-m-Y",(time() - (90 * 86400)))?>"/>
                 <span class="input-group-addon">to</span>
                 <input type="text" class="form-control" name="inputEnd" id="inputEnd" value="<?=date("d-m-Y")?>"/>
             </div>
           </div>
-		  <div class="form-group">
+		  <div class="form-group" title="Type in names then select from the drop down">
 		    <label class="sr-only" for="inputPeople">Who</label>
 		    <input class="form-control"  type="text" name="inputPeople" id="inputPeople" placeholder="Enter names">
 		  </div>

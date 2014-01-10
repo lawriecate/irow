@@ -51,19 +51,19 @@
             </th>
             <th class="tf tsplit" width="16%">Split (HH:MM:SS.SS)
             </br>
-              <div class="input-group" data-toggle="tooltip" title="Fill in the split then press down to copy it to all the rows">
-              <input type="text" class="form-control" name="splitA" id="inputSplitCopy" >
+              <div class="input-group" data-toggle="tooltip" >
+              <input type="text" class="form-control" name="splitA" id="inputSplitCopy" title="Fill in the split then press down to copy it to all the rows">
               <span class="input-group-btn">
-              <button id="inputSplitCopyBtn" class="btn btn-default" type="button"><span class="glyphicon glyphicon-arrow-down"></span></button>
+              <button id="inputSplitCopyBtn" class="btn btn-default" type="button"><span class="glyphicon glyphicon-arrow-down" title="Fill in the split then press down to copy it to all the rows"></span></button>
                   </span>
               </div></th>
             <th class="tf ttime" width="16%">
               Time (HH:MM:SS.SS)
               </br>
               <div class="input-group">
-              <input type="text" class="form-control" name="timeA" id="inputTimeCopy" >
+              <input type="text" class="form-control" name="timeA" id="inputTimeCopy" title="Fill in the time then press down to copy it to all the rows">
               <span class="input-group-btn">
-              <button id="inputTimeCopyBtn" class="btn btn-default" type="button"><span class="glyphicon glyphicon-arrow-down"></span></button>
+              <button id="inputTimeCopyBtn" class="btn btn-default" type="button"><span class="glyphicon glyphicon-arrow-down" title="Fill in the time then press down to copy it to all the rows"></span></button>
                   </span>
               </div>
             </th>
@@ -71,27 +71,27 @@
               Distance (m)
                </br>
                 <div class="input-group">
-                <input type="text" class="form-control" name="distanceA" id="inputDistanceCopy" >
+                <input type="text" class="form-control" name="distanceA" id="inputDistanceCopy" title="Fill in the distance then press down to copy it to all the rows">
                  <span class="input-group-btn">
-                      <button id="inputDistanceCopyBtn" class="btn btn-default" type="button"><span class="glyphicon glyphicon-arrow-down"></span></button>
+                      <button id="inputDistanceCopyBtn" class="btn btn-default" type="button"><span class="glyphicon glyphicon-arrow-down" title="Fill in the distance then press down to copy it to all the rows"></span></button>
                     </span>
               </div>
             </th>
             <th class="tf trate" width="16%">Rate (spm)
             </br>
               <div class="input-group">
-              <input type="text" class="form-control" name="timeA" id="inputRateCopy" >
+              <input type="text" class="form-control" name="rateA" id="inputRateCopy" title="Fill in the rate then press down to copy it to all the rows">
               <span class="input-group-btn">
-              <button id="inputRateCopyBtn" class="btn btn-default" type="button"><span class="glyphicon glyphicon-arrow-down"></span></button>
+              <button id="inputRateCopyBtn" class="btn btn-default" type="button"><span class="glyphicon glyphicon-arrow-down" title="Fill in the rate then press down to copy it to all the rows"></span></button>
                   </span>
               </div></th>
             <th class="tf tnotes"  width="16%">Notes
             </br>
               <div class="input-group">
-              <input type="text" class="form-control" name="timeA" id="inputNotesCopy" >
+              <input type="text" class="form-control" name="notesA" id="inputNotesCopy" title="Fill in the notes then press down to copy it to all the rows, or the plus button to append it to all rows">
               <span class="input-group-btn">
-              <button id="inputNotesAddBtn" class="btn btn-default" type="button"><span class="glyphicon glyphicon-plus"></span></button>
-              <button id="inputNotesCopyBtn" class="btn btn-default" type="button"><span class="glyphicon glyphicon-arrow-down"></span></button>
+              <button id="inputNotesAddBtn" class="btn btn-default" type="button" title="Fill in the notes then press down to copy it to all the rows, or the plus button to append it to all rows"><span class="glyphicon glyphicon-plus"></span></button>
+              <button id="inputNotesCopyBtn" class="btn btn-default" type="button" title="Fill in the notes then press down to copy it to all the rows, or the plus button to append it to all rows"><span class="glyphicon glyphicon-arrow-down"></span></button>
                   </span>
               </div></th>
           </tr>
@@ -244,7 +244,7 @@
     function addRow() {
       tbody=  $("#inputBigTable table tbody ");
       tr = $(' <tr> ' +
-        ' <td class="tf tname"><input name="ac['+rowIndex+'][person]" class="form-control nameselector" type="text" /></td>   ' +
+        ' <td class="tf tname" title="Type in names, then select from the drop down that appears"><input title="Type in names, then select from the drop down that appears" name="ac['+rowIndex+'][person]" class="form-control nameselector" type="text" /></td>   ' +
         ' <td class="tf tsplit"><input name="ac['+rowIndex+'][split]" class="form-control" type="text" /></td>       '+
         ' <td class="tf ttime"><input name="ac['+rowIndex+'][time]" class="form-control" type="text" /></td>    ' +
         ' <td class="tf tdistance"><input name="ac['+rowIndex+'][distance]" class="form-control" type="text" /></td>    ' +
