@@ -5,41 +5,44 @@ Class Activity_model extends CI_Model
 {
 	function add($date,$person,$by,$type,$components,$notes)
 	{
-		//echo 'hi';
+		// function to add a activity record for one user
 		if($date == "" ) { 
-			$date = date('Y-m-d H:i:s');
+			$date = date('Y-m-d H:i:s'); // if the date isn't specified use today
 		}
-		$eref = uniqid();
+		$eref = uniqid(); // generate a new unique reference code
 
-		$row = array(
-					'ref' => $eref,
-					'user' => $person,
-					'creator' => $by,
-					'sort_time' => date('Y-m-d H:i:s',strtotime($date)),
-					'type' => $type,
-					'label' => 'TEST',
-					'component_count' => count($components),
-					'notes' => $notes
+		$row = array( // setup a row array
+					'ref' => $eref, // unique reference
+					'user' => $person, // the person who did the activity
+					'creator' => $by, // the person who logged the activity
+					'sort_time' => date('Y-m-d H:i:s',strtotime($date)), // when it happened
+					'type' => $type, // what kind of activity it is
+					'label' => 'Untitled activity', // placeholder title
+					'component_count' => count($components), // the number of components
+					'notes' => $notes // any notes entered
 				);
 
-		//print_r($row);
-		$this->db->insert('activities',$row);
-		$activity_id = $this->db->insert_id();
+		
+		$this->db->insert('activities',$row); // insert into the db
+		$activity_id = $this->db->insert_id(); // get the record ID of the activity
 
-		// get type information
+		// get information about the type of activity
 		$type = $this->getTypeByID($type);
 		$doSplitCalc = FALSE;
-		if($type['erg_calc'] == "1") {
+		if($type['erg_calc'] == "1") { // if this is a rowing activity, you should calculate a 500m average split
 			$doSplitCalc = TRUE;
 		}
 
-		// insert components
+		// insert components via another function
+		// components represent sub sections of an activity
+		// either to record interval training (common with rowing machines
+		// , or activities that are split up into different segments e.g jogging)
 		$this->addComponents($activity_id,$components,$doSplitCalc);
 
-		// calculate statistics if components present
+		// after adding all components, calculate statistics
 		if(count($components) > 0) {
-			$component_array = $this->getActivityComponents($activity_id);
-			$update = array(
+			$component_array = $this->getActivityComponents($activity_id); // call a function which does calculations
+			$update = array( // setup an array with all the calcualted statistics
 				'total_distance' => $component_array['totalDist'],
 				'total_time' => $component_array['totalTimeSeconds'],
 				'avg_time' => $component_array['avgTimeSeconds'],
@@ -47,53 +50,57 @@ Class Activity_model extends CI_Model
 				'avg_split' => $component_array['avgSplitSeconds'],
 				'avg_rate' => $component_array['avgRate']);
 			
-			$this->db->update('activities',$update,array('ref'=>$eref));
+			$this->db->update('activities',$update,array('ref'=>$eref)); // update the activity record with these statistics
 		}
-		$this->generate_label($activity_id);
 
-		// return final activity record
+		$this->generate_label($activity_id); // generate a user friendly label for the activity which they can customize
+
+		// return complete activity record
 		return $this->get_by_id($activity_id);
 	}
 
 	function update($acid,$update) {
-		//$permitted_fields = array('label','notes','sort_time');
-		//$update = 
+		// function to update an activity record
 		 return $this->db->update('activities',$update,array('id'=>$acid));
 	}
 
 	function get_by_id($acid) {
+		// function to lookup a single activity by database ID
 		$query = $this->db->get_where('activities',array('id'=>$acid));
 		$activity = $query->row_array();
 		return $activity;
 	}
 
 	function get_id_from_ref($ref) {
+		// function to lookup a single activity by unique reference
 		$query = $this->db->get_where('activities',array('ref'=>$ref));
 		$activity = $query->row_array();
 		return $activity['id'];
 	}
 
 	 function generate_label($acid) {
+	 	// function to generate the label
+	 	// get the acivity record
 		$query = $this->db->get_where('activities',array('id'=>$acid));
 		$activity = $query->row_array();
-		//$component_array = $this->getActivityComponents($acid);
-		$type = $this->getTypeByID($activity['type']);
+		$type = $this->getTypeByID($activity['type']); // retrieve information about the type of activity
 
 
-		$label = "Activity";
+		$label = "Activity"; // set a default label
 		switch($type['value']) {
 			case "ergd": 
-				
+				// if its a distance based rowing machine activity set a label which includes the distance
 				$distance = $activity['total_distance'];
-				if($distance > 0) {
+				if($distance > 0) { // check for a recorded distance
 					$rounded = round(($distance/1000),1);
 	
 					$label = $rounded."K erg";
 					break;
 				}
 			default:
+				// otherwise set a label based on the total time spent on the activity and the type
 			$time = $activity['total_time'];
-				if($time> 0) {
+				if($time> 0) { // check for a recorded time
 					$rounded = round(($time/60),1);
 					$label = $rounded." min " . $type['noun'];
 				} else {
@@ -102,32 +109,21 @@ Class Activity_model extends CI_Model
 			break;
 		}
 
+		// update record in the database
 		$this->db->update('activities',array('label'=>$label),array('id'=>$acid));
 	}
 
-	/*function list_activities($start,$end,$user) {
-		$this->db->order_by("sort_time", "asc") ;	
-		$query = $this->db->get_where('activities', array(
-			'user' => $user,
-			'sort_time >= ' => date("Y-m-d H:i:s",($start)),
-			'sort_time <= ' => date("Y-m-d H:i:s",($end))
-		));
-		
-		return $query->result_array();
-		//echo date("Y-m-d H:i:s",($start)) . '<br> ' . date("Y-m-d H:i:s",($end));
-	}*/
-
 	function list_activities($user,$page,$by=NULL) {
+		// function to lookup a page of a user's activities
 		$this->db->from('activities,users');
-		if($by != NULL) {
+		if($by != NULL) { // if a 'by' value is set it will lookup activities they've logged
 			$this->db->where('creator',$user);
-		} else {
+		} else { // otherwise activities logged for them
 			$this->db->where('user',$user);
 		}
 		$this->db->where('activities.user = users.id');
-		//$this->db->order_by("sort_time", "desc");
 		$this->db->order_by("added", "desc");
-		$offset = 30 * ($page - 1);
+		$offset = 30 * ($page - 1); // set the record offset to 30 per page
 		if($page != NULL) {
 			$this->db->limit(30,$offset);
 		}
@@ -135,7 +131,7 @@ Class Activity_model extends CI_Model
 		$results = $query->result_array();
 		$return = array();
 		foreach($results as $result) {
-
+			// generate friendly output
 			
 			$row = array();
 
@@ -145,36 +141,38 @@ Class Activity_model extends CI_Model
 				$row['person'] = $result['name'];
 			}
 
-			$row['label'] = $result['label'];
+			$row['label'] = $result['label']; // inlcude label
 
 			if($result['avg_split'] != "") {
-				$row['split'] = $this->outputSplit($result['avg_split']);
+				$row['split'] = $this->outputSplit($result['avg_split']); // output average in HH:MM:SS format
 			} else {
 				$row['split'] = "-";
 			}
 			if($result['total_time'] != "") {
-				$row['time'] = $this->outputSplit($result['total_time']);
+				$row['time'] = $this->outputSplit($result['total_time']); // output tiem in HH:MM:SS format
 			} else {
 				$row['time'] = "-";
 			}
-			if($result['total_distance'] != "") {
+			if($result['total_distance'] != "") { // include any disttance
 				$row['distance'] = ($result['total_distance']);
 			} else {
 				$row['distance'] = "-";
 			}
-			if($result['avg_rate'] != "") {
+			if($result['avg_rate'] != "") { // include any rate
 				$row['rate'] = ($result['avg_rate']);
 			} else {
 				$row['rate'] = "-";
 			}
-			$row['avg_split'] = $result['avg_split'];
-			$row['sort_time'] = $result['sort_time'];
+			$row['avg_split'] = $result['avg_split']; // add average in seconds
+			$row['sort_time'] = $result['sort_time']; // add time of activity
+			$row['ref'] = $result['ref']; // add unique reference
 			$return[] = $row;
 		}
 		return $return;
 	}
 
 	function count_for_day($id,$day) {
+		// count the number of activites a user recorded in one day
 		$day = date("Y-m-d",($day));
 		$start = $day . " 00:00:00";
 		$end = $day . " 23:59:59";
@@ -191,7 +189,6 @@ Class Activity_model extends CI_Model
 		$query = $this->db->get();
 		if($query->num_rows() > 0) {
 			$results = $query->row_array();
-			//print_r($results);echo"\n";
 			$field = 'COUNT(sort_time)';
 		return (int)$results[$field];
 		} else {
@@ -199,53 +196,42 @@ Class Activity_model extends CI_Model
 		}
 	}
 
-	/*private function componentsString($components) {
-		$ids = array();
-		foreach ($components as $key => $component) {
-			$processed = array(
-					'time' => $this->time_to_seconds($component['time']),
-					'split' => $this->time_to_seconds($component['split']),
-					'distance' => $component['distance'],
-					'rate' => $component['rate']
-				);
-			$this->db->insert('activities_components',$processed);
-			$ids[] = $this->db->insert_id();
-		}
-		return implode(",",$ids);
-	}*/
 
 	private function addComponents($activity_id,$components,$doSplitCalc=FALSE) {
+		// function to add components for an activity
 		foreach($components as $key => $component) {
 
 			// validate each data item
-			$tts = $this->time_to_seconds($component['time']);
-			if($tts > 0) {
+			$tts = $this->time_to_seconds($component['time']); // convert time into seconds
+			if($tts > 0) { // if numeric set
 				$time = $tts;
-			} else {
+			} else { // otherwise nullify
 				$time = NULL;
 			}
 
+			// if a distance is present add to record and check within appropriate range 
 			if($component['distance'] > 0 && $component['distance'] < 1000000) {
 				$distance = $component['distance'];
-			} else {
+			} else { // otherwise nullify
 				$distance = NULL;
 			}
 
+			// convert the entered average into seconds
 			$tts2 = $this->time_to_seconds($component['split']);
+
+			// if this is a rowing machine activity and time and distance entered calculate rowing averages
 			if($distance != NULL && $time != NULL && $distance > 0 && $time > 0 && $doSplitCalc==TRUE) {
-				// recalculate
-				$split = ($time) / ($distance/500);
-				//$split = $tts2;
-				if($split != $tts2) {
+				$split = ($time) / ($distance/500); // calculate an average based on time and distance entered
+				if($split != $tts2) { // check if the average calculated using the time and distance given
 					// doesn't match user input
 				}
-			} else {
+			} else { // if not calculated set to null
 				$split = NULL;
 			}
 
-			if($component['rate'] > 0 && $component['rate'] < 100) {
+			if($component['rate'] > 0 && $component['rate'] < 100) { // if rate entered and within range set it
 				$rate = $component['rate'];
-			} else {
+			} else { // otherwise set rate to null
 				$rate = NULL;
 			}
 
@@ -256,11 +242,12 @@ Class Activity_model extends CI_Model
 					'distance' => $distance,
 					'rate' => $rate
 				);
-			$this->db->insert('activities_components',$processed);
+			$this->db->insert('activities_components',$processed); // insert into db
 		}
 	}
 
 	public function getActivityComponents($acid) {
+		// function to calculate statistics for an activity
 		$query = $this->db->get_where('activities_components',array('activity_id'=>$acid));
 		$components = $query->result_array();	
 		//$component_ids = explode(",",$activity['components']);
@@ -269,27 +256,14 @@ Class Activity_model extends CI_Model
 		$totalDist = 0; // refers to total distance achieved
 		$totalRate = 0; // refers to average rate
 		$totalDuration = 0; // refers to the time taken for the whole exercise including rests
-		$nullTime = FALSE;
+		$nullTime = FALSE; // initialize variables which are set to true if a null value is found
 		$nullDistance = FALSE;
 		$nullRate = FALSE;
-		foreach ($components as $key => $component) {
+		foreach ($components as $key => $component) { // loop through all components
 			
-			// process part of exercise sequence
-			/*$start_char = substr($component_id,0,1);
-			if($start_char == "R") {
-				// rest block
-				$component['type'] = 'rest';
-				$duration = substr($component_id, 1);
-				if(is_numeric($duration)) {
-					$component['time'] = $duration;
-					$totalDuration += $duration;
-				}
-			} else {*/
-				$components[$key]['type'] = 'active';
-				//$query = $this->db->get_where('activities_components',array('id'=>$component_id),1);
-				//$component = $query->row_array();
+				$components[$key]['type'] = 'active'; // create an item in the final return array
 
-				$totalDuration += $component['time'];
+				$totalDuration += $component['time']; // total up all distances, times, rates for averaging
 				$totalTime += $component['time'];
 				$totalDist += $component['distance'];
 				$totalRate += $component['rate'];
@@ -300,7 +274,7 @@ Class Activity_model extends CI_Model
 				$components[$key]['raw_split'] = $component['split'];
 				$components[$key]['split'] = $this->outputSplit($component['split']);
 
-				////// NULL CHECKS
+				////// NULL CHECKS if any null values are found stop averages being calcualted
 				if($component['time'] == NULL) {
 					$nullTime = TRUE;
 				}
@@ -310,30 +284,29 @@ Class Activity_model extends CI_Model
 				if($component['rate'] == NULL) {
 					$nullRate = TRUE;
 				}
-			//}
-			//$components[] = $component;
+			
 		}
 
-		$no_of_components = count($components);
+		$no_of_components = count($components); // total number of compoents
 
-		$components['totalTime'] = $this->outputSplit($totalTime);
-		$components['totalTimeSeconds'] = $totalTime;
-		$components['totalDist'] = $totalDist;
-		$avgTime = ($totalTime)/$no_of_components;
-		$components['avgTimeSeconds'] = $avgTime;
-		$components['avgTime'] = $this->outputSplit($avgTime);
-		$components['avgDistance'] = round(	(($totalDist)/$no_of_components)	, 2);
-		if($totalTime > 0 && $totalDist > 0) {
-			$avgSplit = ($totalTime) / ($totalDist/500);
-			$components['avgSplitSeconds'] = $avgSplit;
-			$components['avgSplit'] = $this->outputSplit($avgSplit);
+		$components['totalTime'] = $this->outputSplit($totalTime); // output the total time HH:MM:SS
+		$components['totalTimeSeconds'] = $totalTime; // output total time in seconds
+		$components['totalDist'] = $totalDist; // output total distance
+		$avgTime = ($totalTime)/$no_of_components; // calculate average time in seconds
+		$components['avgTimeSeconds'] = $avgTime; // output average time in secnods
+		$components['avgTime'] = $this->outputSplit($avgTime); // output average time in HH:MM:SS
+		$components['avgDistance'] = round(	(($totalDist)/$no_of_components)	, 2); // output rounded average distance
+		if($totalTime > 0 && $totalDist > 0) { // if the total time and distance are set
+			$avgSplit = ($totalTime) / ($totalDist/500); // calcualte an average over 500m
+			$components['avgSplitSeconds'] = $avgSplit; // output it in seconds
+			$components['avgSplit'] = $this->outputSplit($avgSplit); // output it in HH:MM:SS
 		} else {
-			$components['avgSplitSeconds'] = null;
+			$components['avgSplitSeconds'] = null; // otherwise set to nnull
 			$components['avgSplit'] = null;
 		}
-		$components['avgRate'] = round(($totalRate / $no_of_components),1);
+		$components['avgRate'] = round(($totalRate / $no_of_components),1); // output average stroke rate
 
-		if($nullTime) {
+		if($nullTime) { // if a null time found remove all time stats
 			$components['totalTime'] = NULL;
 			$components['totalTimeSeconds'] = NULL;
 			$components['avgTimeSeconds'] = NULL;
@@ -341,25 +314,27 @@ Class Activity_model extends CI_Model
 			$components['avgSplitSeconds'] = NULL;
 			$components['avgSplit'] = NULL;
 		}
-		if($nullDistance) {
+		if($nullDistance) { // if a null distance found remove all distance stats
 			$components['totalDist'] = NULL;
 			$components['avgDistance'] = NULL;
 			$avgSplit = NULL;
 			$components['avgSplitSeconds'] = NULL;
 			$components['avgSplit'] =NULL;
 		}
-		if($nullRate) {
+		if($nullRate) { // if a null rate found remove all rate stats
 			$components['avgRate'] = NULL;
 		}
 		return $components;
 	}
 	
 	public function get($ref) {
+		// function to get an activity by reference code
 		$query =  $this->db->get_where('activities',array('ref'=>$ref));
 		return $query->row_array();
 	}
 
 	public function list_years($uid) {
+		// function to output all years containing a user activity
 		$this->db->select('user, sort_time, YEAR(sort_time), COUNT(*)');
 		$this->db->from('activities');
 		$this->db->where('user',$uid);
@@ -383,6 +358,7 @@ Class Activity_model extends CI_Model
 	}
 
 	public function list_months($uid,$year) {
+		// function to output all months in which a user records activity for a specific year
 		$this->db->select('user, sort_time, YEAR(sort_time), MONTH(sort_time),COUNT(*)');
 		$this->db->from('activities');
 		$this->db->where(array(
@@ -407,6 +383,7 @@ Class Activity_model extends CI_Model
 	}
 
 	public function get_year_averages($uid,$year,$mode='2K') {
+		// function which retrieves the latest splits for special test ergs
 		$this->db->select('user, sort_time, YEAR(sort_time), MONTH(sort_time),COUNT(*),AVG(avg_split),total_distance,type');
 		$this->db->from('activities');
 		$where = "user = $uid AND YEAR(sort_time) = $year AND (type = '1' OR type = '2') ";
@@ -419,11 +396,7 @@ Class Activity_model extends CI_Model
 				break;
 		}
 		$this->db->where($where);
-		/*$this->db->where(array(
-			'user' => $uid,
-			'YEAR(sort_time)' => $year
-			));*/
-		
+
 		$this->db->group_by('MONTH(sort_time)');
 		$query = $this->db->get();
 
@@ -447,6 +420,7 @@ Class Activity_model extends CI_Model
 	}
 
 	public function get_month_averages($uid,$year,$month,$mode='2K') {
+		// function to get special rowing averages for a given month
 		$this->db->select('user, sort_time, YEAR(sort_time), MONTH(sort_time),DAY(sort_time),COUNT(*),AVG(avg_split),total_distance,type');
 		$this->db->from('activities');
 		$where = "user = $uid AND YEAR(sort_time) = $year AND MONTH(sort_time) = $month AND (type = '1' OR type = '2') ";
@@ -487,6 +461,7 @@ Class Activity_model extends CI_Model
 	}
 
 	public function list_days($uid,$year,$month) {
+		// function to output all days in which a user records activity for a specific year / month
 		$this->db->select('user, sort_time, DAY(sort_time), COUNT(*)  ');
 		$this->db->from('activities');
 		$date_start = date("Y-m-1 00:00:00",strtotime("$year-$month"));
@@ -515,6 +490,7 @@ Class Activity_model extends CI_Model
 	}
 
 	public function list_exercises_for_day($uid,$year,$month,$day) {
+		// function to output all activites for a given date
 		$date_start = strtotime("$year-$month-$day 00:00:00");
 		$date_end = strtotime("$year-$month-$day 23:59:59");
 
@@ -527,10 +503,10 @@ Class Activity_model extends CI_Model
 		
 		return $query->result_array();
 
-		//return $this->list_activities($date_start,$date_end,$uid);
 	}
 
 	private function get_pb_distance($id,$dist) {
+		// function to output the best score a user has achieved for one type of distance exercise
 		$this->db->select('user,ref,type,component_count,total_distance,avg_split,total_time');
 		$this->db->from('activities');
 		$where = "user = $id AND total_distance = " . ($dist * 1000) . " AND type = '2' ";
@@ -559,6 +535,7 @@ Class Activity_model extends CI_Model
 	}
 
 	public function get_pb_time($id,$time) {
+		// function to output the best score a user has achieved for one type of time exercise
 		$this->db->select('user,ref,type,component_count,total_distance,total_time,avg_split');
 		$this->db->from('activities');
 		$where = "user = $id AND total_time = ".($time*60)." AND type = '1' AND total_distance > 0 ";
@@ -586,6 +563,7 @@ Class Activity_model extends CI_Model
 	}
 
 	public function get_personal_bests($id) {
+		// function which collates common personal best scores
 		$pbs = array();
 
 		// distance PBs
@@ -601,6 +579,7 @@ Class Activity_model extends CI_Model
 
 
 	public function erg_history($id,$type,$distance_or_length,$no=5) {
+		// function to lookup a users last 5 scores for a particulare type of either timed or distance rowing machine exercise
 		$this->db->select('user,ref,type,component_count,total_distance,avg_split,total_time,added,sort_time');
 		$this->db->from('activities');
 		$this->db->where('user',$id);
@@ -620,20 +599,35 @@ Class Activity_model extends CI_Model
 
 	function delete($id)
 	{
-
+		// function to delete an activity
+		// TODO
 	}
 
 	function getTypes() {
+		// function to lookup all stored types of activity
 		$query = $this->db->get('activities_types');
 		$types = array();
-		foreach ($query->result_array() as $row)
+		foreach ($query->result_array() as $row) // output seperated by type group (rowing, indoor, outdoor etc)
 		{
-			$types[$row['group']][] = $row;	
+			$types[$row['group']][] = $row;	 
 		}
 		return $types;
 	}
 
 	function getTypeByRef($ref) {
+		// function to lookup a type by ref
+		$query = $this->db->get_where('activities_types',array('value'=>$ref));
+		$result = $query->row_array();
+
+		if($result) {
+			return $result['id'];
+		} else {
+			return FALSE;
+		}
+	}
+
+	function getTypeIDByRef($ref) {
+		// function which gets the DB id of a type by its short string value
 		$query = $this->db->get_where('activities_types',array('value'=>$ref));
 		$result = $query->row_array();
 
@@ -645,6 +639,7 @@ Class Activity_model extends CI_Model
 	}
 
 	function getTypeByID($id) {
+		// function lookup an activity type by db ID
 		$query = $this->db->get_where('activities_types',array('id'=>$id));
 		$result = $query->row_array();
 
@@ -656,42 +651,42 @@ Class Activity_model extends CI_Model
 	}
 
 	private function time_to_seconds($time) {
-		$parts = explode(":",$time);
-		$parts = array_reverse($parts);
-		$raise60 = 0;
+		// function to calculate the seconds a HH:MM:SS time represents
+		$parts = explode(":",$time); // split up by colon
+		$parts = array_reverse($parts); // reverse array so starts with seconds
+		$raise60 = 0; // initialize calculate values
 		$total_seconds = 0;
-		foreach($parts as $part) {
+		foreach($parts as $part) { // go through each part
 			//echo "$part x 60 ^ $raise60<br>";
 		
 			$seconds = $part * pow(60,$raise60);
 			//echo $seconds . "<br>";
 			$total_seconds += $seconds;
-			$raise60++;
+			$raise60++; // increment the power of 60 used, 0 for secs, 1 for minutes, 2 for hour etc
 		}
 		return $total_seconds;
 	}
 
 	function outputSplit($init,$longOutput = FALSE) {
-		// for i = 1 to 3
-			// for j = 0 to (60 * i)
-		//return gmdate("H:i:s",$seconds);
-		$hours = floor($init / 3600);
-		$minutes = floor(($init / 60) % 60);
-		$seconds = $init % 60;
-		$fractional =  strstr($init,".");
+		// function to convert a time in seconds to HH:MM:SS (split time format)
+
+		$hours = floor($init / 3600); // get integer division of 3600 (seconds in an hour)
+		$minutes = floor(($init / 60) % 60); // likewise for minutes
+		$seconds = $init % 60; // and what's left in seconds
+		$fractional =  strstr($init,"."); // plus anything else in decimal section
 		if($fractional == "") {
-			$fractional = ".0";
+			$fractional = ".0"; // if no decimal section, use placeholder .0
 		}
-		$combined_seconds = $seconds . substr($fractional,0,2);
+		$combined_seconds = $seconds . substr($fractional,0,2); // put together integer and decimal seconds
 		if($seconds < 10) {
 			$second_pad = "0";
 		} else {
 			$second_pad = NULL;
 		}
 
-		$pretty = $minutes . ":" . $second_pad . $combined_seconds;
+		$pretty = $minutes . ":" . $second_pad . $combined_seconds; // set pretty output with colons seperating each part
 
-		if($longOutput == TRUE) {
+		if($longOutput == TRUE) { // if longoutput wanted, prepend hours and pad values so if they're less than 10 they have padding 0
 			$pretty = str_pad($hours,2,"0",STR_PAD_LEFT) . ":"  . str_pad($minutes,2,"0",STR_PAD_LEFT) . ":" . $second_pad . $combined_seconds;
 		}
 
@@ -699,9 +694,8 @@ Class Activity_model extends CI_Model
 	}
 
 	function get_types() {
+		// get all activity types from database
 		$this->db->from('activities_types');
-		//$this->db->group_by('group');
-
 		$query = $this->db->get();
 		$types = $query->result_array();
 		$return = array();
@@ -714,7 +708,7 @@ Class Activity_model extends CI_Model
 	}
 
 	function get_coaches_people($coach,$input) {
-		// get coaches permission
+		// function to lookup all people in the users table who were created by a coach
 		$this->db->from('users_clubs');
 		$this->db->where('user_id',$coach);
 		$this->db->where('(level = "coach" OR level = "manager")');
@@ -756,6 +750,7 @@ Class Activity_model extends CI_Model
 	}
 
 	function search_activities($fields,$users) {
+		// function to search for activities done by a set of users
 		$this->db->from('activities');
 		$this->db->where($fields);
 
@@ -765,7 +760,6 @@ Class Activity_model extends CI_Model
 		//$this->db->order_by("sort_time", "desc");
 		$query = $this->db->get();
 		$results = $query->result_array();
-		//echo ' 			' . $this->db->last_query() . '         ';
 		return $results;
 	}
 

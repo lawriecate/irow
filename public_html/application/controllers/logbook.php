@@ -11,6 +11,7 @@ class Logbook extends Secure_Controller {
 
 	public function index() 
 	{
+		// output logbook page
 		$data['title'] = "Logbook";
 		$me = $this->l_auth->current_user_id();
 		$data['activities'] = $this->activity_model->list_activities($me,1);
@@ -19,8 +20,34 @@ class Logbook extends Secure_Controller {
 		$this->load->view('templates/footer');
 	}
 
+	public function detail($ref)
+	{
+		// show a detail record for one activity
+		$modal=FALSE;
+		if($this->input->get('modal')=="y") {
+			$modal = TRUE;
+		}
+
+		$data['title'] = "Activity Record";
+		$me = $this->l_auth->current_user_id();
+		$data['activity'] = $this->activity_model->get_by_id($this->activity_model->get_id_from_ref($ref));
+		// check permission
+		if($data['activity']['user'] == $me) {
+			if($modal == FALSE) {
+				$this->load->view('templates/header',$data);
+			}
+			$this->load->view('logbook/activity',$data);
+			if($modal == FALSE) {
+				$this->load->view('templates/footer');
+			}
+		}	else {
+			return FALSE;
+		}
+	}
+
 	public function ajax_loadpage()
 	{
+		// javascript interface for loading a page of activities
 		$me = $this->l_auth->current_user_id();
 		$p = $this->input->get('p');
 		if($p < 1) {
@@ -34,12 +61,13 @@ class Logbook extends Secure_Controller {
 
 	public function dl_csv() 
 	{
+		// downloads a CSV file of activities 
 		$me = $this->l_auth->current_user_id();
 		$data =  $this->activity_model->list_activities($me,NULL);
 
 		$fp =  fopen('php://output', 'w');
 		ob_start();
-		$headings = array('Date','Label','Split','Time','Distance','Rate','Split (Secs)','System Time');
+		$headings = array('Date','Label','Split','Time','Distance','Rate','Split (Secs)','System Time','Ref');
 		 fputcsv($fp, $headings);
 		foreach ($data as $fields) {
 		    fputcsv($fp, $fields);
@@ -51,7 +79,7 @@ class Logbook extends Secure_Controller {
 		        
 		$filename = 'iRow_logbook_' . date('Ymd') .'_' . date('His');
 		        
-		// Output CSV-specific headers
+		// Output CSV-specific headers and forces browser to download page as CSV
 		header("Pragma: public");
 		header("Expires: 0");
 		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");

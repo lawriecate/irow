@@ -57,3 +57,6 @@
 		</div>
 	</div>
 </div>
+<script type="text/javascript">
+$("#dob").inputmask('dd-mm-yyyy');
+</script>

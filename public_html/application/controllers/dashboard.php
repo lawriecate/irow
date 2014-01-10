@@ -12,13 +12,14 @@ class Dashboard extends Secure_Controller {
 
 	public function index() 
 	{
+		// displays dashboard page
 		$data['title'] = "My Dashboard";
 		$me = $this->l_auth->current_user_id();
 		$user = $this->user_model->get_by_id($me);
 		$data['name'] = $user['name'];
-		$data['pbs'] = $this->activity_model->get_personal_bests($me);
+		$data['pbs'] = $this->activity_model->get_personal_bests($me); // get activity data
 		//$data['pbs_2k'] = $this->activity_model->erg_history($me,"distance",2);
-		$data['height'] = $this->measurements_model->get_height($me);
+		$data['height'] = $this->measurements_model->get_height($me); // get current measurements
 		$data['weight'] = $this->measurements_model->get_weight($me);
 		$data['armspan'] = $this->measurements_model->get_armspan($me);
 		$this->load->view('templates/header',$data);
@@ -27,6 +28,7 @@ class Dashboard extends Secure_Controller {
 	}
 
 	public function ajax_graphdata() {
+		// javascript interface for personal best graphs
 		$me = $this->l_auth->current_user_id();
 		$type = $this->input->get('t');
 		$dislen = $this->input->get('d');
@@ -36,6 +38,7 @@ class Dashboard extends Secure_Controller {
 		}
 		$recent_scores = $this->activity_model->erg_history($me,$type,$dislen);
 
+		// output erg history in google data format
 		$data = array();
 		$cols = array(
 				array('type'=>'date','label'=>'Date'),
@@ -61,6 +64,7 @@ class Dashboard extends Secure_Controller {
 	}
 
 	public function ajax_radata() {
+		// get recent activites from db and output in google data format
 		$me = $this->l_auth->current_user_id();
 
 		//$recent_scores = $this->activity_model->list_activities($me);
@@ -120,6 +124,7 @@ class Dashboard extends Secure_Controller {
 	}
 
 	public function ajax_updatem() {
+		// javascript interface to update a body measurement
 		$type = $this->input->get('t');
 		$val = $this->input->get('v');
 		$me = $this->l_auth->current_user_id();

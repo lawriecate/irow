@@ -10,10 +10,11 @@ class Login extends CI_Controller {
 
 	public function index()
 	{
+		// displays login form
 		$data['title'] = "Log In";
 		$this->load->helper(array('form'));
 		$this->load->library('form_validation');
-
+		// set codeigniter validation
 		$this->form_validation->set_rules('email', 'Email', 'email|trim|required|xss_clean');
 	   	$this->form_validation->set_rules('password', 'Password', 'trim|required|xss_clean|callback_check_database');
 

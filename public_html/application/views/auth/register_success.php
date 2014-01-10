@@ -94,5 +94,6 @@ $(document).ready(function() {
   $("#inputClub").selectize({
     create: true
   });
+  $("#dob").inputmask('dd-mm-yyyy');
 });
 </script>

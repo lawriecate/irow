@@ -12,6 +12,7 @@ class Register extends CI_Controller {
 	
 	public function index()
 	{
+		// displays registration form
 		$data['title'] = "Register for iRow";
 		if($this->l_auth->logged_in() ) { // redirects users if they're already logged in
 			redirect();
@@ -64,12 +65,14 @@ class Register extends CI_Controller {
 	}
 
 	function _accept_terms() {
+		// internal validation function to check ToS accepted
 		if (isset($_POST['tosconsent'])) return true;
 		$this->form_validation->set_message('_accept_terms', 'Please read and accept our terms of service');
 		return FALSE;
 	}
 
 	function _dobcheck() {
+		// internval validation function to check date is within range
 		$this->form_validation->set_message('_dobcheck', 'The date you entered is not valid');
 		$input = $this->input->post('dob');
 		$time = strtotime($input);
@@ -95,6 +98,7 @@ class Register extends CI_Controller {
 	}
 	
 	function _gendercheck() {
+		// internal validation function to check gender is m or f
 		$this->form_validation->set_message('_gendercheck', 'The gender you entered is not valid');
 		$input = $this->input->post('gender');
 		if($input == "m" or $input == "f") {
@@ -106,18 +110,22 @@ class Register extends CI_Controller {
 	}
 
 	function _heightcheck() {
+		// perform height validation 
 		return $this->_measurementcheck('height','Height',120,200); // refers height validation where input is height, label is Height, minimum is 120, maximum is 200
 	}
 
 	function _weightcheck() {
+		// perform weight validation
 		return $this->_measurementcheck('weight','Weight',40,200,TRUE); // likewise refers weight validation (decimals allowed is TRUE)
 	}
 
 	function _armspancheck() {
+		// perform armspan validation
 		return $this->_measurementcheck('armspan','Arm Span',50,300); // likewise refers armspan validation
 	}
 
-	function _measurementcheck($post,$label,$min,$max,$decimal=FALSE) { // function which validates measurement fields
+	function _measurementcheck($post,$label,$min,$max,$decimal=FALSE) {
+	 // function which validates measurement fields
 		$input = $this->input->post($post); // reads input
 		$this->form_validation->set_message('_' . $post . 'check', 'The ' . $label . ' you enter should be a number inbetween ' . $min .  ' and ' . $max); // sets user friendly error message
 		if($input != "" ) { // if something entered
@@ -138,7 +146,8 @@ class Register extends CI_Controller {
 		}
 	}
 
-	function _clubcheck() { // checks the club selected is valid or represents individual
+	function _clubcheck() { 
+	// checks the club selected is valid or represents individual
 		$input = $this->input->post('club');
 		$this->form_validation->set_message('_clubcheck', 'The club you entered is not valid');
 		if($input == 0) {
@@ -152,6 +161,7 @@ class Register extends CI_Controller {
 	
 	public function setup()
 	{
+		// displays profile setup form
 		$data['title'] = "Setup Your Account";
 		$data['clubs'] = $this->club_model->get_all();
 		if(!$this->l_auth->logged_in() ) { // if the user isn't logged in redirect them
@@ -194,7 +204,8 @@ class Register extends CI_Controller {
 			$armspan = $this->input->post('armspan');
 			$weight = $this->input->post('weight');
 			$club = $this->input->post('club');
-			$setup = $this->user_model->setup($dob,$gender,$height,$armspan,$weight,$club);
+			$me = $this->l_auth->current_user_id(); 
+			$setup = $this->user_model->setup($me,$dob,$gender,$height,$armspan,$weight,$club);
 
 			if($setup) {
 				redirect('/dashboard');

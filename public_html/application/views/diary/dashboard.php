@@ -53,8 +53,7 @@
         <h4 class="modal-title">View Log</h4>
       </div>
       <div class="modal-body">
-        <p>RECORD:</p>
-        <p></p>
+        &nbsp;
       </div>
     </div>
     <!-- /.modal-content --> 
@@ -360,6 +359,15 @@ hours = Math.floor(init / 3600);
 
   	//////////////////////////////////////////////////////////
   	// view exercise code
+
+    function showModal(injectLink) {
+      $.get(injectLink,function(page) {
+        $("#viewWorkoutModal .modal-body").html(page);
+        $("#viewWorkoutModal").modal().show();
+      });
+      
+    }
+
 function updateView(hash) {
       
         req = hash.substring(1);
@@ -421,7 +429,13 @@ function updateView(hash) {
                 setTimeout(function() { itemOuter.fadeIn(); },20*key);
 
                 itemLink.click(function() {
-                  updateView(obj.link);
+                  
+                  if(obj.link_modal == true) {
+                    showModal(obj.link);
+                    event.preventDefault();
+                  } else {
+                    updateView(obj.link);
+                  }
                 });
                 
               });

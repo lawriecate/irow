@@ -10,6 +10,7 @@ class Profile extends Secure_Controller {
 
 	public function settings()
 	{
+		// display the personal settings form
 		$me = $this->l_auth->current_user_id();
 		
 		$this->load->helper(array('form'));
@@ -22,6 +23,7 @@ class Profile extends Secure_Controller {
 			$data['clubs'] .= $club['name'] . ', ';
 		}
 
+		// set Codeigniter validation
 		if($this->input->post('email') != $data['profile']['email']) {
 			$this->form_validation->set_rules('email', 'Email', 'valid_email|trim|required|xss_clean|is_unique[users.email]'); // checks email is valid,entered,trims blank space,remove XSS script,and checks it's unique
 		}
@@ -32,9 +34,7 @@ class Profile extends Secure_Controller {
 	   		$this->form_validation->set_rules('password', 'Password', 'trim|required|xss_clean|min_length[5]|max_length[30]');
 	   		$this->form_validation->set_rules('password2', 'Confirmation Password', 'trim|required|xss_clean|matches[password]');
 	   	}
-	   	//$this->form_validation->set_rules('tosconsent', 'Terms Of Service Agreement', 'callback__accept_terms');
-		
-		//print_r($data);
+	 
 		if($this->form_validation->run() == FALSE) // if the form is entered and validation fails
 		{
 			// show form + errors
@@ -56,7 +56,6 @@ class Profile extends Secure_Controller {
 			
 			$this->user_model->update($me,$email,$name,$password,$dob,$gender);
 			$data['profile'] =  $this->user_model->get_by_id($me);
-			//print_r($data);
 			$data['saved'] = TRUE;
 			$this->load->view('templates/header',$data);
 			$this->load->view('profile/settings',$data);
@@ -65,6 +64,7 @@ class Profile extends Secure_Controller {
 	}
 
 	function _dobcheck() {
+		// interval validation function for checking date is in range
 		$this->form_validation->set_message('_dobcheck', 'The date you entered is not valid');
 		$input = $this->input->post('dob');
 		$time = strtotime($input);
@@ -90,6 +90,7 @@ class Profile extends Secure_Controller {
 	}
 	
 	function _gendercheck() {
+		// internal validation function checks gender is m or f
 		$this->form_validation->set_message('_gendercheck', 'The gender you entered is not valid');
 		$input = $this->input->post('gender');
 		if($input == "m" or $input == "f") {

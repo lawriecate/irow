@@ -11,12 +11,8 @@ class Diary extends Secure_Controller {
 
 	public function index()
 	{
-		//$this->activity_model->generate_label(17);
-		//echo $this->l_auth->current_user_id();
-		//print_r($this->activity_model->getActivityComponents('5275ad3e83'));
-		$start_of_week = time() - (7 * 60 * 60 * 24);
-		$end_of_week = time();
-		//$this_week_data = ($this->activity_model->list_activities($start_of_week,$end_of_week,$this->l_auth->current_user_id() ));
+		//displays diary html
+
 		$this->load->helper(array('form'));
 		$this->load->library('form_validation');
 		$data['title'] = "Diary";
@@ -29,7 +25,7 @@ class Diary extends Secure_Controller {
 		
 	}
 
-	public function view($ref)
+	/*public function view($ref) RELOCATED TO LOGBOOK CONTROLLER
 	{
 		//$this->load->view('templates/header');
 		$exercise = $this->activity_model->get($ref);
@@ -41,10 +37,11 @@ class Diary extends Secure_Controller {
 			$this->load->view('diary/view',$data);
 		}
 //this->load->view('templates/footer');
-	}
+	}*/
 
 	public function add()
 	{
+		// POST interface that adds activity record
 		$this->load->helper(array('form'));
 		$this->load->library('form_validation');
 
@@ -77,6 +74,7 @@ class Diary extends Secure_Controller {
 
 	public function addmeasurement()
 	{
+		// displays for to add new measurement
 		$this->load->view('templates/header');
 		$data['title'] = "Add Measurement";
 		$this->load->view('diary/addmeasurement');
@@ -84,6 +82,7 @@ class Diary extends Secure_Controller {
 	}
 
 	public function ajax_updateexercise() {
+		// javascript interface to update an exercise label, notes or time of activity (for homepage)
 		$ref = $this->input->post('acid');
 		$id = $this->activity_model->get_id_from_ref($ref);
 
@@ -109,6 +108,7 @@ class Diary extends Secure_Controller {
 	}
 	
 	public function ajax_logexercise() {
+		// javascript interface for logging an exercise
 		$this->load->helper(array('form'));
 		$this->load->library('form_validation');
 		// lookup type, then setup insert
@@ -136,6 +136,7 @@ class Diary extends Secure_Controller {
 	}
 
 	public function ajax_diary_totals() {
+		// javascript interface for getting the months of recorded activity for a given year
 		$response = array();
 
 		$me = $this->l_auth->current_user_id();
@@ -155,6 +156,7 @@ class Diary extends Secure_Controller {
 	}
 
 	public function ajax_diary_days() {
+		// javascript interface for getting the months of recorded activity for a given day
 		$year = $this->input->get('year');
 		$month =  $this->input->get('month');
 
@@ -167,6 +169,7 @@ class Diary extends Secure_Controller {
 	}
 
 	public function ajax_diary_daylist() {
+		// javascript interface for getting the exercise for a given day
 		$year = $this->input->get('year');
 		$month =  $this->input->get('month');
 		$day = $this->input->get('day');
@@ -180,6 +183,7 @@ class Diary extends Secure_Controller {
 	}
 
 	public function ajax_logetypes() {
+		// javascript interface for getting the types of exercise
 		$types = $this->activity_model->get_types();
 
 		$this->output
@@ -188,6 +192,7 @@ class Diary extends Secure_Controller {
 	}
 	
 	public function ajax_diary_view() {
+		// javascript interface for outputting a diary view
 		$hashtag = $this->input->get('tag');
 		$parts = explode("_",$hashtag);
 	
@@ -197,7 +202,7 @@ class Diary extends Secure_Controller {
 		$me = $this->l_auth->current_user_id();
 		switch($command) {
 			case "":
-			case "life":
+			case "life": // shows all years of activity  
 				$years = $this->activity_model->list_years($me);
 				$response["title"] = "All-time";
 				$response["graphs"] = FALSE;
@@ -214,7 +219,7 @@ class Diary extends Secure_Controller {
 					$response["items"][] = $item;
 				}
 				break;
-			case "year":
+			case "year": // lists month in a year
 				$year = (int) $parts[1];
 				
 				$months = $this->activity_model->list_months($me,$year);
@@ -272,13 +277,13 @@ class Diary extends Secure_Controller {
 					$response["graphs"] = array($graph1);
 				}
 				break;
-			case "month":
+			case "month": // list days in a month
 				$year = (int) $parts[1];
 				$month = (int)$parts[2];
 				$monthName = date("F", mktime(0, 0, 0, $month, 10));
 				$days = $this->activity_model->list_days($me,$year,$month);
 				if($days) {
-					$response["title"] = "Month $year / $month";
+					$response["title"] = date("F Y",mktime(0, 0, 0, $month, 10));
 					$response["return"]["title"] = "Return to $year";
 					$response["return"]["link"] = "#year_$year";
 					$response["breadcrumb"] = array(
@@ -338,7 +343,7 @@ class Diary extends Secure_Controller {
 				
 				}
 				break;
-			case "day":
+			case "day": // lists any activities in a given day
 				$year = (int) $parts[1];
 				$month = (int)$parts[2];
 				$day = (int)$parts[3];
@@ -346,7 +351,7 @@ class Diary extends Secure_Controller {
 				$ex = $this->activity_model->list_exercises_for_day($me,$year,$month,$day);
 
 				if($ex || (is_array($ex) && count($ex)==0)) {
-					$response["title"] = "Day $year / $month / $day";
+					$response["title"] = date("l jS \of F Y",strtotime($year."-".$month."-".$day));
 					$response["graphs"] = FALSE;
 					$response["return"]["title"] = "Return to $month";
 					$response["return"]["link"] = "#month_".$year."_".$month;
@@ -362,10 +367,15 @@ class Diary extends Secure_Controller {
 					foreach($ex as $n => $ex) {
 						$item = array();
 						$item["title"] = "" . $ex['label'];
-						$item["label"] = $this->activity_model->outputSplit($ex['avg_split']);
+						if($ex['avg_split'] != NULL) {
+							$item["label"] = $this->activity_model->outputSplit($ex['avg_split']);
+						} else {
+							$item["label"] = "";
+						}
 						//$item["c"] = $total;
 						$item["back"] = ('#fff');
-						@$item["link"] = "";
+						$item["link"] = base_url() . "logbook/detail/" . $ex['ref']."/?modal=y";
+						$item["link_modal"] = TRUE;
 						$response["items"][] = $item;
 					}
 				}

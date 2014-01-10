@@ -12,6 +12,7 @@ class Coach extends Secure_Controller {
 
 	public function index()
 	{
+		// dislpay page which tells you how to register as a cach
 		$data['title'] = "Coach Assistant";
 		$this->load->view('templates/header',$data);
 		$this->load->view('coach/deny');
@@ -20,6 +21,7 @@ class Coach extends Secure_Controller {
 
 	public function log()
 	{
+		// display the mutiple person activity log page
 		$data['title'] = "Log Activity";
 		$data['types'] = $this->activity_model->get_types();
 		$this->load->view('templates/header',$data);
@@ -29,6 +31,7 @@ class Coach extends Secure_Controller {
 
 	public function logbook()
 	{
+		// dispaly the coach logbook
 		$data['title'] = "Coach Logbook";
 		$me = $this->l_auth->current_user_id();
 		$data['activities'] = $this->activity_model->list_activities($me,1,TRUE);
@@ -39,6 +42,7 @@ class Coach extends Secure_Controller {
 
 	public function ajax_logbook_loadpage()
 	{
+		// provide javascript interface for loadng pages of logbook
 		$me = $this->l_auth->current_user_id();
 		$p = $this->input->get('p');
 		if($p < 1) {
@@ -52,6 +56,7 @@ class Coach extends Secure_Controller {
 
 	public function dl_logbook_csv() 
 	{
+		// generate CSV file of logged activities
 		$me = $this->l_auth->current_user_id();
 		$data =  $this->activity_model->list_activities($me,NULL,TRUE);
 
@@ -69,7 +74,7 @@ class Coach extends Secure_Controller {
 		        
 		$filename = 'iRow_logbook_' . date('Ymd') .'_' . date('His');
 		        
-		// Output CSV-specific headers
+		// Output CSV-specific headers that make browser download the file as CSV
 		header("Pragma: public");
 		header("Expires: 0");
 		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -83,6 +88,7 @@ class Coach extends Secure_Controller {
 
 	public function ajax_getfields() 
 	{
+		// javascript interface to get what fields each activity can collect
 		$type = $this->input->get('type');
 		$activity = $this->activity_model->getTypeByID($this->activity_model->getTypeByRef($type));
 		$fields = array();
@@ -108,10 +114,11 @@ class Coach extends Secure_Controller {
 
 	public function ajax_namesuggest() 
 	{
+		// javascript interface to search for users the coach can manager
 		$query = $this->input->get('q');
 		$me = $this->l_auth->current_user_id();
 		$people = $this->activity_model->get_coaches_people($me,$query);
-
+		//$people[] = array('name'=>'J18 Boys','user_id'=>'GROUP_J18M');
 		$this->output
 		->set_content_type('application/json')
 		->set_output(json_encode($people));
@@ -119,6 +126,7 @@ class Coach extends Secure_Controller {
 
 	public function ajax_nameadd()
 	{
+		// javascript interface to add a new user
 		$name = $this->input->post('name');
 		if($name != "") {
 			$me = $this->l_auth->current_user_id();
@@ -138,6 +146,7 @@ class Coach extends Secure_Controller {
 	}
 
 	public function ajax_saveactivity() {
+		// javascript interface to save an activity
 		$this->load->helper('array');
 		$coach = $this->l_auth->current_user_id();
 		$input_array = ($this->input->post('ac'));
@@ -192,24 +201,34 @@ class Coach extends Secure_Controller {
 	}
 
 	function ajax_conn() {
+		// javascript interface that tells page user still logged in
 		$this->output
 			->set_content_type('application/json')
 			->set_output(json_encode(TRUE));
 	}
 	
-	public function analyse() {
-		$data['title'] = "Analyse Performance";
-		$data['graphs'] = array(
+	private function get_analyse_graphs() {
+		// temp function to return common graphs
+		return  array(
 			array('name'=>'2K erg',
 				'type'=>'ergd',
 				'distance'=>2000),
 			array('name'=>'5K erg',
 				'type'=>'ergd',
 				'distance'=>2000),
+			array('name'=>'12K erg',
+				'type'=>'ergd',
+				'distance'=>12000),
 			array('name'=>'&frac12; hour erg',
 				'type'=>'ergt',
 				'time'=>30 * 60)
 		);
+	}
+	
+	public function analyse() {
+		// displays graphing page
+		$data['title'] = "Analyse Performance";
+		$data['graphs'] = $this->get_analyse_graphs();
 		$this->load->view('templates/header',$data);
 		$this->load->view('coach/analyse',$data);
 		$this->load->view('templates/footer');
@@ -217,10 +236,15 @@ class Coach extends Secure_Controller {
 
 	public function ajax_graphdata()
 	{
+		// javascript interface to output erg data in Google Data format
 		$me = $this->l_auth->current_user_id();
 		$distance = $this->input->get('distance');
 		$time = $this->input->get('time');
-		$type_filter = $this->input->get('type');
+		$typeRef = $this->input->get('type');
+		$graphs = $this->get_analyse_graphs();
+		$graph = $graphs[$typeRef];
+		$type = $this->activity_model->getTypeByID($this->activity_model->getTypeIDByRef($graph['type']));
+				//$type_filter = $this->input->get('type');
 		$people = explode(",",$this->input->get('who'));
 
 		$rstart = strtotime($this->input->get('start'));
@@ -271,12 +295,12 @@ class Coach extends Secure_Controller {
 		$response['rows'] = array();
 		if($valid == TRUE) {
 			//$response['people'] = $people;
-			
 			$filter = array(
 				'sort_time >= ' => date("Y-m-d",$rstart),
 				'sort_time <= ' => date("Y-m-d",$rend),
-				'type' => '1'
+				'type' => $type['id']
 				);
+			
 			$activities = $this->activity_model->search_activities($filter,$people);
 			$preprocess = array();
 			foreach($activities as $activity) {
@@ -295,7 +319,7 @@ class Coach extends Secure_Controller {
 				}
 				
 			}
-//print_r($preprocess);
+
 			$finalRows = array();
 			foreach($preprocess as $ts => $prerow) {
 				$date = "Date" . date("(Y,",$ts) . (date("m",$ts) - 1) . date(",d)",$ts);
@@ -303,16 +327,13 @@ class Coach extends Secure_Controller {
 					array('v'=>$date)
 				);
 				foreach($prerow as $person => $indscore) {
-					$row[]=array('v'=>$indscore);
+					$row[]=array('v'=>$indscore,'f'=>$this->activity_model->outputSplit($indscore));
 				}
 				$finalRows[]=array('c'=>$row);
 
 			}
 			$response['rows'] = $finalRows;
-			//print_r($response);
-
-		//	$response['gbegin'] = $rstart_js;
-		//	$response['gend'] = $rend_js;
+			
 		} else {
 			$response['error'] = TRUE;
 		}
@@ -323,5 +344,5 @@ class Coach extends Secure_Controller {
 	}
 }
 
-/* End of file diary.php */
-/* Location: ./application/controllers/diary.php */
+/* End of file coach.php */
+/* Location: ./application/controllers/coach.php */

@@ -22,8 +22,9 @@ class Welcome extends CI_Controller {
 		if($this->l_auth->logged_in()==TRUE) {
 			redirect('dashboard');
 		}
-		$this->load->view('templates/header');
-		$data['title'] = "Welcome";
+		$data['title'] = "iRow - Personal Training Diary";
+		$this->load->view('templates/header',$data);
+		
 		$this->load->view('templates/example');
 		$this->load->view('templates/footer');
 	}

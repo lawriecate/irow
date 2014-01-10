@@ -12,11 +12,37 @@
 			  </div>
 			  <div class="form-group">
 			    <label class="control-label" for="inputCoaches">Coaches</label>
-			    <input type="text" class="form-control" name="coaches" id="inputCoaches"  disabled="disabled" value="<?=$coach_list?>">                                         
+			    <select id="inputCoaches" name="coaches[]" class="memberSelect"  multiple="multiple" class="form-control">
+	              <?
+	              $addedCoaches=array();
+	               foreach($coaches as $coach):
+	                $addedCoaches[] = $coach['id'];?>
+	              <option value="<?=$coach['id']?>" selected  data-data="<?=htmlentities(json_encode(array('id'=>$coach['id'],'name'=>$coach['name'])))?>"><?=$coach['name']?></option>
+	              <? endforeach; ?>
+	              <? foreach($members as $member):
+	              if(!in_array($member['id'], $addedCoaches)) { ?>
+	         	 <option value="<?=$member['id']?>"  data-data="<?=htmlentities(json_encode(array('id'=>$member['id'],'name'=>$member['name'])))?>"><?=$member['name']?></option>
+	              <? 
+	         	}
+	         	endforeach; ?>
+	            </select>                                         
 			  </div>
 			   <div class="form-group">
 			    <label class="control-label" for="inputManagers">Managers</label>
-			    <input type="text" class="form-control" name="managers" id="inputManagers"  disabled="disabled" value="<?=$manager_list?>">                                         
+			    <select id="inputManagers" name="managers[]" class="memberSelect" multiple="multiple"  class="form-control">
+	              <?
+	               $addedManagers=array(); 
+	              foreach($managers as $manager):
+	              $addedManagers[] = $manager['id']; ?>
+	              <option value="<?=$manager['id']?>" selected  data-data="<?=htmlentities(json_encode(array('id'=>$manager['id'],'name'=>$manager['name'])))?>"><?=$manager['name']?></option>
+	              <? endforeach; ?>
+	              <? foreach($members as $member):
+	              if(!in_array($member['id'], $addedCoaches)) { ?>
+	         	 <option value="<?=$member['id']?>"   data-data="<?=htmlentities(json_encode(array('id'=>$member['id'],'name'=>$member['name'])))?>"><?=$member['name']?></option>
+	              <? 
+	         	}
+	         	endforeach; ?>
+	            </select>                                             
 			  </div>
 			  <div class="form-group">
 			    <label class="control-label" for="inputEmail">Email</label>
@@ -61,3 +87,44 @@
 		</div>
 	</div>
 </div>
+<script type="text/javascript">
+$(document).ready(function() {
+	var options = {
+                valueField: 'id',
+                labelField: 'name',
+                searchField: 'name',
+                maxItems: 25,
+                options: [],
+                render: {
+                    option: function(item, escape) {
+                        return '<div>' +
+                            '<span class="title">' +
+                                '<span class="name">' + escape(item.name) + '</span>' +
+                            '</span>' +    
+                        '</div>';
+                    }
+                },
+                load: function(query, callback) {
+                    if (!query.length) return callback();
+                    $.ajax({
+                        url: '<?=base_url()?>club/ajax_getmembers',
+                        type: 'GET',
+                        dataType: 'json',
+                        data: {
+                            q: query
+                        },
+                        error: function() {
+                            callback();
+                        },
+                        success: function(res) {
+                            callback(res);
+                        }
+                    });
+                },
+                create: false
+            };
+	var coachSelect = $("#inputCoaches").selectize();
+	var managerSelect = $("#inputManagers").selectize();
+
+});
+</script>

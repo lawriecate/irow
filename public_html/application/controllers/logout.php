@@ -4,11 +4,12 @@ class Logout extends Secure_Controller {
 
 	public function index()
 	{
+		// logout user and redirect
 		if($this->l_auth->logout()) {
 			redirect();
 		}
 	}
 }
 
-/* End of file welcome.php */
-/* Location: ./application/controllers/welcome.php */
+/* End of file logut.php */
+/* Location: ./application/controllers/logout.php */

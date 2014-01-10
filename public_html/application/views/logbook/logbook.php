@@ -1,5 +1,4 @@
 <div class="container">
-    <!-- Example row of columns -->
     <div class="row">
         <div class="col-lg-12">
         	<h1>Personal Logbook</h1>
@@ -24,7 +23,7 @@
 			  	<? foreach($activities as $activity): ?>
 			  	<tr>
 			  		<td><?= $activity['date'] ?></td>
-			  		<td><?= $activity['label'] ?></td>
+			  		<td><a href="<?=base_url()?>logbook/detail/<?=$activity['ref']?>"><?= $activity['label'] ?></a></td>
 			  		<td><?= $activity['split'] ?></td>
 			  		<td><?= $activity['time'] ?></td>
 			  		<td><?= $activity['distance'] ?></td>

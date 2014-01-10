@@ -1,9 +1,10 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 class Admin extends Admin_Controller {
-
+// class which contains all pages in the admin section
 	public function index()
 	{
+		// displays the index template
 		$data['title'] = "Administration";
 		$this->load->view('templates/header',$data);
 		$this->load->view('admin/index');
@@ -12,7 +13,7 @@ class Admin extends Admin_Controller {
 
 	public function userlist()
 	{
-	
+		// displays a table of users
 		//print_r($data['tabledata']);
 		$data['title'] = "Manage Users";
 		$this->load->view('templates/header',$data);
@@ -21,6 +22,7 @@ class Admin extends Admin_Controller {
 	}
 
 	public function ajax_usersdata() {
+		// looksup users for the userlist table
 		$page = (int) $this->input->get('start');
 		$length = (int) $this->input->get('len');
 		$query = $this->input->get('q');
@@ -59,10 +61,11 @@ class Admin extends Admin_Controller {
 
 		$this->output
 		->set_content_type('application/json')
-		->set_output(json_encode($response));
+		->set_output(json_encode($response)); // output in JSON format
 	}
 
 	public function ajax_clubsdata() {
+		// looksup clubs for the clubslist table
 		$page = (int) $this->input->get('start');
 		$length = (int) $this->input->get('len');
 		$query = $this->input->get('q');
@@ -87,24 +90,25 @@ class Admin extends Admin_Controller {
 
 		$this->output
 		->set_content_type('application/json')
-		->set_output(json_encode($response));
+		->set_output(json_encode($response)); // output in JSON format
 	}
 
 	public function edit_user($id) {
-
+		// page for editing user record
 		$this->load->model('user_model');
 		$this->load->model('club_model');
 		$this->load->helper(array('form'));
 		$this->load->library('form_validation');
 
-		if($this->user_model->get_by_id($id) == FALSE ) {
+		if($this->user_model->get_by_id($id) == FALSE ) { // check they exist
 			return FALSE;
 		}
 
 		$data['title'] = "Edit User";
-		$data['profile'] =  $this->user_model->get_by_id($id);
+		$data['profile'] =  $this->user_model->get_by_id($id); // lookup previous vlue
 		$data['memberships'] = $this->user_model->memberships($id);
 
+		// set Codeigniter validation rules
 		if($this->input->post('email') != $data['profile']['email']) {
 			$this->form_validation->set_rules('email', 'Email', 'valid_email|trim|required|xss_clean|is_unique[users.email]'); // checks email is valid,entered,trims blank space,remove XSS script,and checks it's unique
 		}
@@ -116,9 +120,7 @@ class Admin extends Admin_Controller {
 	   		$this->form_validation->set_rules('password2', 'Confirmation Password', 'trim|required|xss_clean|matches[password]');
 	   	}
 
-		//$this->load->view('templates/header',$data);
-		//$this->load->view('admin/edit_user');
-		//$this->load->view('templates/footer');
+
 		if($this->form_validation->run() == FALSE) // if the form is entered and validation fails
 		{
 			// show form + errors
@@ -127,8 +129,10 @@ class Admin extends Admin_Controller {
 			$this->load->view('admin/edit_user',$data);
 			$this->load->view('templates/footer');
 		}
-		else // if the form has been submitted
+		else // if the form has been submitted correctly
 		{
+
+			// gather input values from HTTP POST data
 			$email = $this->input->post('email');
 			$name = $this->input->post('name');
 			$password = FALSE;
@@ -142,10 +146,10 @@ class Admin extends Admin_Controller {
 
 			$clubs = $this->input->post('clubs');
 			
-			$this->user_model->update($id,$email,$name,$password,$dob,$gender);
-			$this->user_model->set_suspension($id,$suspend);
-			$this->user_model->set_admin($id,$admin);
-			foreach($clubs as $club_id => $level) {
+			$this->user_model->update($id,$email,$name,$password,$dob,$gender); // call update in user_model
+			$this->user_model->set_suspension($id,$suspend); // update suspension value
+			$this->user_model->set_admin($id,$admin); // update admin value
+			foreach($clubs as $club_id => $level) { // update each new membership
 				if($level == "REMOVE") {
 					$this->user_model->leave_club($id,$club_id);
 				} else {
@@ -153,9 +157,9 @@ class Admin extends Admin_Controller {
 				}
 			}
 			$data['saved'] = TRUE;
-			$data['profile'] =  $this->user_model->get_by_id($id);
+			$data['profile'] =  $this->user_model->get_by_id($id); // get new values form db
 			$data['memberships'] = $this->user_model->memberships($id);
-			//print_r($data);
+			// redisplay form
 			$this->load->view('templates/header',$data);
 			$this->load->view('admin/edit_user',$data);
 			$this->load->view('templates/footer');
@@ -163,7 +167,7 @@ class Admin extends Admin_Controller {
 	}
 
 	public function edit_club($id) {
-
+		// page which displays form to edit a club
 		$this->load->model('club_model');
 		$this->load->helper(array('form'));
 		$this->load->library('form_validation');
@@ -173,9 +177,10 @@ class Admin extends Admin_Controller {
 		}
 
 		$data['title'] = "Edit Club";
-		$data['countries'] = $this->club_model->list_countries();
-		$data['club'] =  $this->club_model->get_by_id($id);
+		$data['countries'] = $this->club_model->list_countries(); // lookup countries for country dropdown
+		$data['club'] =  $this->club_model->get_by_id($id); // lookup previous club values
 
+		// set codeigniter validation rules
 		if($this->input->post('email') != $data['club']['email']) {
 			$this->form_validation->set_rules('email', 'Email', 'valid_email|trim|required|xss_clean|is_unique[clubs.email]'); // checks email is valid,entered,trims blank space,remove XSS script,and checks it's unique
 		}
@@ -191,10 +196,7 @@ class Admin extends Admin_Controller {
 
 		$this->form_validation->set_rules('verify','Verification Status', 'greater_than[-1]|less_than[3]');
 
-	 
-		//$this->load->view('templates/header',$data);
-		//$this->load->view('admin/edit_user');
-		//$this->load->view('templates/footer');
+
 		if($this->form_validation->run() == FALSE) // if the form is entered and validation fails
 		{
 			// show form + errors
@@ -216,12 +218,12 @@ class Admin extends Admin_Controller {
 				'addr_postcode'=> $this->input->post('addrPostcode'),
 				'addr_country'=> $this->input->post('addrCountry'),
 				'verified'=>$this->input->post('verify')
-				);
-			$this->club_model->update($id,$fields);
+				); // setup update array of fields
+			$this->club_model->update($id,$fields); // send it to db
 	
-			$data['club'] =  $this->club_model->get_by_id($id);
+			$data['club'] =  $this->club_model->get_by_id($id); // get new values back out of db
 			$data['saved'] = TRUE;
-			//print_r($data);
+			// redisplay form
 			$this->load->view('templates/header',$data);
 			$this->load->view('admin/edit_club',$data);
 			$this->load->view('templates/footer');
@@ -229,13 +231,15 @@ class Admin extends Admin_Controller {
 	}
 
 	public function add_club() {
-
+		// page which displays form to add club
 		$this->load->model('club_model');
 		$this->load->helper(array('form'));
 		$this->load->library('form_validation');
 
 		$data['title'] = "Add Club";
-		$data['countries'] = $this->club_model->list_countries();
+		$data['countries'] = $this->club_model->list_countries(); // retrieves countries for drop down list
+
+		// set codeigniter validation rules
 
 		$this->form_validation->set_rules('email', 'Email', 'valid_email|trim|required|xss_clean|is_unique[clubs.email]'); 
 		$this->form_validation->set_rules('name', 'Name', 'trim|required|xss_clean|min_length[2]|max_length[60]');
@@ -268,8 +272,8 @@ class Admin extends Admin_Controller {
 				'addr_city'=> $this->input->post('addrCity'),
 				'addr_postcode'=> $this->input->post('addrPostcode'),
 				'addr_country'=> $this->input->post('addrCountry')
-				);
-			$this->club_model->add($fields);
+				); // setup array using HTTP Post input variables
+			$this->club_model->add($fields); // add new value into database
 	
 			//$data['club'] =  $this->club_model->get_by_id($id);
 			//print_r($data);
@@ -279,6 +283,7 @@ class Admin extends Admin_Controller {
 
 	public function clublist()
 	{
+		// page which displays a list of clubs
 		$data['title'] = "Manage Clubs";
 		$this->load->view('templates/header',$data);
 		$this->load->view('admin/clublist');
@@ -287,6 +292,7 @@ class Admin extends Admin_Controller {
 
 	public function ajax_user_regclub()
 	{
+		// javascipt interface to update a users club membership for edit_user
 		$user = $this->input->get('id');
 		$club = $this->input->get('club');
 		$this->load->model('user_model');
@@ -324,5 +330,5 @@ class Admin extends Admin_Controller {
 	}
 }
 
-/* End of file diary.php */
-/* Location: ./application/controllers/diary.php */
+/* End of file admin.php */
+/* Location: ./application/controllers/admin.php */
