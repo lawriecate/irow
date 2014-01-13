@@ -22,6 +22,7 @@ class Logbook extends Secure_Controller {
 
 	public function detail($ref)
 	{
+
 		// show a detail record for one activity
 		$modal=FALSE;
 		if($this->input->get('modal')=="y") {
@@ -30,7 +31,9 @@ class Logbook extends Secure_Controller {
 
 		$data['title'] = "Activity Record";
 		$me = $this->l_auth->current_user_id();
+
 		$data['activity'] = $this->activity_model->get_by_id($this->activity_model->get_id_from_ref($ref));
+
 		// check permission
 		if($data['activity']['user'] == $me) {
 			if($modal == FALSE) {

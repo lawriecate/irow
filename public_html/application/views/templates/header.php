@@ -93,7 +93,7 @@
                
                 <? /* <li class="divider"></li>
                 <li class="dropdown-header">Your Clubs</li>
-                <li><a href="<?=base_url()?>club/"><span class="glyphicon glyphicon-plus"></span> Add Club</a></li>*/?>
+                <li><a href="<?=base_url()?>club/"><span class="glyphicon glyphicon-plus"></span> Add Club</a></li>*/?> 
               </ul>
             </li>
             <? if($this->l_auth->is_admin_logged_in()) { ?>
