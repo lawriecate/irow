@@ -28,7 +28,7 @@
 			  <div class="form-group">
             <label class="col-lg-2 control-label" for="dob">Date Of Birth</label>
             
-              <input type="text" class="form-control" id="dob" name="dob" placeholder="00-00-0000" value="<?= $profile['dob'] ?>" autofocus>
+              <input type="text" class="form-control" id="dob" name="dob" placeholder="00-00-0000" value="<?= date("d-m-Y",strtotime($profile['dob'])) ?>" autofocus>
         
           </div>
           <div class="form-group">
