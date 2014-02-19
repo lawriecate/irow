@@ -118,7 +118,8 @@ class Diary extends Secure_Controller {
 	     				'distance'=>$this->input->post('inputDistance'),
 	     				'time'=>$this->input->post('inputTime'),
 	     				'rate'=>$this->input->post('inputRate'),
-	     				'split'=>$this->input->post('inputSplit')
+	     				'split'=>$this->input->post('inputSplit'),
+	     				'hr'=>$this->input->post('inputHr')
 	     				);
 
 	     $response =	$this->activity_model->add(
@@ -213,6 +214,7 @@ class Diary extends Secure_Controller {
 				foreach($years as $year => $total) {
 					$item = array();
 					$item["title"] = "Year $year";
+					$item["id"] = "year$year";
 					$item["label"] = "";
 					//$item["c"] = $total;
 					$item["link"] = "#year_" . $year;
@@ -236,6 +238,7 @@ class Diary extends Secure_Controller {
 						$monthName = date("F", mktime(0, 0, 0, $month, 10));
 						$item = array();
 						$item["title"] = "$monthName";
+						$item["id"] = "month$month";
 						$item["label"] = "$count exercises";
 						$item["back"] = (($count > 0) ? '#E6E6E6' : '#fff');
 						@$item["link"] = "#month_".$year."_".$month;
@@ -297,6 +300,7 @@ class Diary extends Secure_Controller {
 
 						$item = array();
 						$item["title"] = "Day $day";
+						$item["id"] = "day$day";
 						$item["label"] = "$count exercises";
 						//$item["c"] = $total;
 						$item["back"] = (($count > 0) ? '#E6E6E6' : '#fff');
@@ -367,6 +371,7 @@ class Diary extends Secure_Controller {
 					foreach($ex as $n => $ex) {
 						$item = array();
 						$item["title"] = "" . $ex['label'];
+						$item["id"] = "ex" . $ex['ref'];
 						if($ex['avg_split'] != NULL) {
 							$item["label"] = $this->activity_model->outputSplit($ex['avg_split']);
 						} else {

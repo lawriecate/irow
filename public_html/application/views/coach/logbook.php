@@ -12,13 +12,14 @@
           	<table id="lbTable" class="table table-hover table-responsive ">
 			  <thead>
 			  	<tr>
-			  		<th width="17%">Date</th>
-			  		<th width="13%">Person</th>
-			  		<th width="17%">Label</th>
-			  		<th width="13%">Split</th>
-			  		<th width="13%">Time</th>
-			  		<th width="13%">Distance</th>
-			  		<th width="13%">Rate</th>
+			  		<th width="12%">Date</th>
+			  		<th width="12%">Person</th>
+			  		<th width="12%">Label</th>
+			  		<th width="12%">Split</th>
+			  		<th width="12%">Time</th>
+			  		<th width="12%">Distance</th>
+			  		<th width="12%">Rate</th>
+			  		<th width="12%">Heart Rate</th>
 			  	</tr>
 			  </thead>
 			  <tbody>
@@ -31,6 +32,7 @@
 			  		<td><?= $activity['time'] ?></td>
 			  		<td><?= $activity['distance'] ?></td>
 			  		<td><?= $activity['rate'] ?></td>
+			  		<td><?= $activity['hr'] ?></td>
 			  	</tr>
 			  <? endforeach; ?>
 			  </tbody>

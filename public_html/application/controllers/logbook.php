@@ -48,6 +48,16 @@ class Logbook extends Secure_Controller {
 		}
 	}
 
+	public function ajax_delete() 
+	{
+		$me = $this->l_auth->current_user_id();
+		$ref = $this->input->get('ref');
+		$response = $this->activity_model->delete($me,$ref);
+		$this->output
+		->set_content_type('application/json')
+		->set_output(json_encode($response));
+	}
+
 	public function ajax_loadpage()
 	{
 		// javascript interface for loading a page of activities
@@ -70,7 +80,7 @@ class Logbook extends Secure_Controller {
 
 		$fp =  fopen('php://output', 'w');
 		ob_start();
-		$headings = array('Date','Label','Split','Time','Distance','Rate','Split (Secs)','System Time','Ref');
+		$headings = array('Date','Label','Split','Time','Distance','Rate','Heart Rate','Split (Secs)','System Time','Ref');
 		 fputcsv($fp, $headings);
 		foreach ($data as $fields) {
 		    fputcsv($fp, $fields);

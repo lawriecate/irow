@@ -1,7 +1,8 @@
 <h1>test calculations</h1>
 <?
 
-$split = '00:22:29.5';
+//$split = '00:22:29.5';
+$split = $_GET['split'];
 echo $split . '<br>';
 
 function simple_seconds($time) {

@@ -84,6 +84,10 @@
                     <label for="logRate">Rate</label>
                     <input type="text" class="form-control" id="logRate" name="rate">
                   </div>
+                   <div class="form-group col-xs-4" id="logHrGroup">
+                    <label for="logHr">Heart Rate</label>
+                    <input type="text" class="form-control" id="logHr" name="hr">
+                  </div>
                 </div>
                 <button type="submit" id="logSubmit" class="btn btn-default">Save To Log</button>
               </form>
@@ -295,6 +299,7 @@ $.get('<?=base_url()?>dashboard/ajax_updatem?t=armspan&v=' + $("#saveMsArmSpan")
             inputTime: $("#logTime").val().replace("_","0"),
             inputSplit: $("#logSplit").val().replace("_","0"),
             inputRate: $("#logRate").val(),
+            inputHr: $("#logHr").val(),
             inputNotes:""
           }
           

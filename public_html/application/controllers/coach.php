@@ -19,6 +19,32 @@ class Coach extends Secure_Controller {
 		$this->load->view('templates/footer');
 	}
 
+	public function invitations() {
+		// function to display list of invited users
+		$data['title'] = "Invitations";
+		$me = $this->l_auth->current_user_id();
+		$data['invitations'] = $this->user_model->get_invitations($me);
+		$this->load->view('templates/header',$data);
+		$this->load->view('coach/invitations',$data);
+		$this->load->view('templates/footer');
+	}
+
+	public function ajax_invite() {
+		$me = $this->l_auth->current_user_id();
+		$user = $this->input->post('uid');
+		$emailto = $this->input->post('email');
+		$response = 'ER_GENERAL';
+		if(filter_var($emailto, FILTER_VALIDATE_EMAIL)) {
+			$response = $this->user_model->coach_invite($me,$user,$emailto);
+		} else {
+			$response = 'ER_EMAIL';
+		}
+
+		$this->output
+		->set_content_type('application/json')
+		->set_output(json_encode($response));
+	}
+
 	public function log()
 	{
 		// display the mutiple person activity log page
@@ -35,6 +61,7 @@ class Coach extends Secure_Controller {
 		$data['title'] = "Coach Logbook";
 		$me = $this->l_auth->current_user_id();
 		$data['activities'] = $this->activity_model->list_activities($me,1,TRUE);
+		
 		$this->load->view('templates/header',$data);
 		$this->load->view('coach/logbook',$data);
 		$this->load->view('templates/footer');	
@@ -62,7 +89,7 @@ class Coach extends Secure_Controller {
 
 		$fp =  fopen('php://output', 'w');
 		ob_start();
-		$headings = array('Date','Name','Label','Split','Time','Distance','Rate','Split (Secs)','System Time');
+		$headings = array('Date','Name','Label','Split','Time','Distance','Rate','Heart Rate','Split (Secs)','System Time');
 		 fputcsv($fp, $headings);
 		foreach ($data as $fields) {
 		    fputcsv($fp, $fields);
@@ -342,6 +369,8 @@ class Coach extends Secure_Controller {
 			->set_content_type('application/json')
 			->set_output(json_encode($response));
 	}
+
+
 }
 
 /* End of file coach.php */

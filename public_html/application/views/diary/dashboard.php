@@ -418,7 +418,7 @@ function updateView(hash) {
               $.each(data.items,function(key, obj) {
                 
                 var itemOuter = $('<div class="excard"></div>');
-                
+                itemOuter.attr("id",obj.id);
                 viewList.append(itemOuter);
                 var itemLink = $('<a href="'+obj.link+'"></a>').append('<h3>'+obj.title+'</h3>').append('<p>'+obj.label+'</p>');
                 if(typeof obj.back != undefined) {

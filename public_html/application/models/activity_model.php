@@ -42,13 +42,15 @@ Class Activity_model extends CI_Model
 		// after adding all components, calculate statistics
 		if(count($components) > 0) {
 			$component_array = $this->getActivityComponents($activity_id); // call a function which does calculations
+			
 			$update = array( // setup an array with all the calcualted statistics
 				'total_distance' => $component_array['totalDist'],
 				'total_time' => $component_array['totalTimeSeconds'],
 				'avg_time' => $component_array['avgTimeSeconds'],
 				'avg_distance' => $component_array['avgDistance'],
 				'avg_split' => $component_array['avgSplitSeconds'],
-				'avg_rate' => $component_array['avgRate']);
+				'avg_rate' => $component_array['avgRate'],
+				'avg_hr' => $component_array['avgHr']);
 			
 			$this->db->update('activities',$update,array('ref'=>$eref)); // update the activity record with these statistics
 		}
@@ -163,6 +165,11 @@ Class Activity_model extends CI_Model
 			} else {
 				$row['rate'] = "-";
 			}
+			if($result['avg_hr'] != "") { // include any rate
+				$row['hr'] = ($result['avg_hr']);
+			} else {
+				$row['hr'] = "-";
+			}
 			$row['avg_split'] = $result['avg_split']; // add average in seconds
 			$row['sort_time'] = $result['sort_time']; // add time of activity
 			$row['ref'] = $result['ref']; // add unique reference
@@ -235,12 +242,19 @@ Class Activity_model extends CI_Model
 				$rate = NULL;
 			}
 
+			if($component['hr'] > 0 && $component['hr'] < 200) { // if heart rate entered and within range set it
+				$hr = $component['hr'];
+			} else { // otherwise set rate to null
+				$hr = NULL;
+			}
+
 			$processed = array(
 					'activity_id' => $activity_id,
 					'time' => $time,
 					'split' => $split,
 					'distance' => $distance,
-					'rate' => $rate
+					'rate' => $rate,
+					'hr'=> $hr
 				);
 			$this->db->insert('activities_components',$processed); // insert into db
 		}
@@ -256,9 +270,11 @@ Class Activity_model extends CI_Model
 		$totalDist = 0; // refers to total distance achieved
 		$totalRate = 0; // refers to average rate
 		$totalDuration = 0; // refers to the time taken for the whole exercise including rests
+		$totalHr = 0;
 		$nullTime = FALSE; // initialize variables which are set to true if a null value is found
 		$nullDistance = FALSE;
 		$nullRate = FALSE;
+		$nullHr = FALSE;
 		foreach ($components as $key => $component) { // loop through all components
 			
 				$components[$key]['type'] = 'active'; // create an item in the final return array
@@ -267,6 +283,7 @@ Class Activity_model extends CI_Model
 				$totalTime += $component['time'];
 				$totalDist += $component['distance'];
 				$totalRate += $component['rate'];
+				$totalHr += $component['hr'];
 
 				$components[$key]['raw_time'] = $component['time'];
 				$components[$key]['time'] = $this->outputSplit($component['time']);
@@ -284,6 +301,9 @@ Class Activity_model extends CI_Model
 				if($component['rate'] == NULL) {
 					$nullRate = TRUE;
 				}
+				if($component['hr'] == NULL ) {
+					$nullHr = TRUE;
+				}
 			
 		}
 
@@ -296,6 +316,7 @@ Class Activity_model extends CI_Model
 		$components['avgTimeSeconds'] = $avgTime; // output average time in secnods
 		$components['avgTime'] = $this->outputSplit($avgTime); // output average time in HH:MM:SS
 		$components['avgDistance'] = round(	(($totalDist)/$no_of_components)	, 2); // output rounded average distance
+		$components['avgHr'] = round(	(($totalHr)/$no_of_components)	, 2);  // output rounded average Heart Rate
 		if($totalTime > 0 && $totalDist > 0) { // if the total time and distance are set
 			$avgSplit = ($totalTime) / ($totalDist/500); // calcualte an average over 500m
 			$components['avgSplitSeconds'] = $avgSplit; // output it in seconds
@@ -323,6 +344,9 @@ Class Activity_model extends CI_Model
 		}
 		if($nullRate) { // if a null rate found remove all rate stats
 			$components['avgRate'] = NULL;
+		}
+		if($nullHr) {
+			$components['avgHr'] = NULL;
 		}
 		return $components;
 	}
@@ -597,10 +621,27 @@ Class Activity_model extends CI_Model
 		return $query->result_array();
 	}
 
-	function delete($id)
+	function delete($user,$acref)
 	{
-		// function to delete an activity
-		// TODO
+		// function to delete an activity on behalf of a user
+		// check permission
+		$activity = $this->get($acref);
+		$id = $activity['id'];
+		$permission = FALSE;
+		if($activity['user'] == $user) {
+			$permission = TRUE;
+		}
+
+		if($permission == TRUE) {
+			$this->db->where('activity_id',$id);
+			$this->db->delete('activities_components');
+			$this->db->where('ref',$acref);
+			$this->db->limit(1);
+			$this->db->delete('activities');
+			return TRUE;
+		} else {
+			return FALSE;
+		}
 	}
 
 	function getTypes() {

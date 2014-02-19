@@ -67,7 +67,7 @@
                 <li><a href="<?= base_url() ?>coach/analyse"><span class="glyphicon glyphicon-stats"></span> Analytics Tool</a></li>
                 <? /*<li><a href="<?= base_url() ?>nya"><span class="glyphicon glyphicon-calendar"></span> Diary</a></li>*/?>
                 <li><a href="<?= base_url() ?>coach/logbook"><span class="glyphicon glyphicon-list"></span> Logbook</a></li>
-               
+               <li><a href="<?= base_url() ?>coach/invitations"><span class="glyphicon glyphicon-user"></span> Invite Athletes</a></li>
                 
               </ul>
               

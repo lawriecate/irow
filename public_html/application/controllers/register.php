@@ -7,7 +7,7 @@ class Register extends CI_Controller {
 	   parent::__construct();
 	   $this->load->model('user_model');
 	   $this->load->model('club_model');
-	   
+	   $this->load->library('session');
 	}
 	
 	public function index()
@@ -172,7 +172,7 @@ class Register extends CI_Controller {
 		$user = $this->user_model->get_by_id($me);
 
 		if($user['setup'] == 1) {
-			//redirect('profile/settings');
+			redirect('profile/settings');
 		}
 
 		$this->load->helper(array('form'));
@@ -213,6 +213,79 @@ class Register extends CI_Controller {
 				$this->load->view('templates/header');
 				$data['system_error'] = TRUE;
 				$this->load->view('auth/register_success',$data);
+				$this->load->view('templates/footer');
+			}
+			
+		}
+	}
+
+	public function invitation() {
+		// check the invitation
+		$key = $this->input->get('key');
+		$user = $this->user_model->redeem_invitation($key); // gets user ID from redeem function
+		if($user != FALSE) {
+			$this->session->set_userdata(array('invite_uid'=>$user));
+			redirect('register/invited_new_password'); // redirect to setup password
+		} else {
+			show_error('This invitation key is not valid');
+		}
+	}
+
+	public function invited_new_password() {
+		// allow just invited user to setup password
+		// displays profile setup form
+		$data['title'] = "Create password";
+		if($this->l_auth->logged_in() ) { // if the user is logged in then redirect them
+			redirect('/dashboard');
+		}
+		// get user ID from INVITATION SESSION DATA
+	
+		$me = $this->session->userdata('invite_uid');
+		
+		$user = $this->user_model->get_by_id($me);
+
+		$data['email'] = $user['email'];
+
+		if($user['setup'] == 1) {
+			redirect('profile/settings');
+		}
+
+		$this->load->helper(array('form'));
+		
+		$this->load->library('form_validation');
+		// set validation rules for setup form
+		$this->form_validation->set_rules('password', 'Password', 'trim|required|xss_clean|min_length[5]|max_length[30]');
+	   	$this->form_validation->set_rules('password2', 'Confirmation Password', 'trim|required|xss_clean|matches[password]');
+	   	// 
+		if($this->form_validation->run() == FALSE) // if the form isn't valid / or submitted
+		{
+			
+			// show form + any errors
+
+		    $this->load->view('templates/header');
+		    $data['system_error'] = FALSE;
+			$this->load->view('auth/register_postinvite',$data);
+			$this->load->view('templates/footer');
+		}
+		else
+		{
+			// save password
+			$password = $this->input->post('password');
+			
+			$club = $this->input->post('club');
+			$me = $this->session->userdata('invite_uid');
+
+			$setup = $this->user_model->generate_password($me,$password); // update password
+			$this->user_model->change_status($me,'noprofile'); // update status so they're redirected to profile setup
+
+			if($setup) {
+				$this->user_model->login($user['email'],$password); // log them in
+
+				redirect('/register/setup');
+			} else {
+				$this->load->view('templates/header');
+				$data['system_error'] = TRUE;
+				$this->load->view('auth/register_postinvite',$data);
 				$this->load->view('templates/footer');
 			}
 			

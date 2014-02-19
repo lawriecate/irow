@@ -46,7 +46,7 @@ Class User_model extends CI_Model
 		}
 	}
 
-	private function generate_password($id,$password) {
+	function generate_password($id,$password) {
 		 // function to update user password using encryption
 		$random_salt = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), true));
 		$hpassword = $this->encrypt->encode(hash('sha512',$password.$random_salt)); // generates encrypted value of new password
@@ -294,5 +294,115 @@ Class User_model extends CI_Model
 				'club_id'=>$club);
 			$this->db->delete('users_clubs',$row);
 		}
+	}
+
+	function get_invitations($id) {
+		$this->db->where('invitee',$id);
+		$query = $this->db->get('users');
+		return $query->result_array();
+	}
+
+	function coach_invite($coach,$user,$emailto) {
+		// function to send invitation on behalf of a coach to enable them to take ownership of account
+
+		// lookup user and make sure they're created by coach, and no invitation sent recently
+		$this->db->where('id',$user);
+		$this->db->where('invitee',$coach);
+		$this->db->limit(1);
+		$query = $this->db->get('users');
+		if($query->num_rows()==1) {
+			// generate invitation
+			$key = md5(time());
+			$link = base_url() . 'register/invitation/?key='.$key;
+			$invitations_row = array(
+					'user' => $user,
+					'coach' => $coach,
+					'emailto' => $emailto,
+					'key' => $key,
+					'status' => 1
+				);
+			$this->db->insert('invitations',$invitations_row);
+
+			// get coach name
+			$coach = $this->get_by_id($coach);
+			// now user found send email
+			$title = "Invitation to iRow from " . $coach['name'];
+			$body = "<h1>iRow Invitation</h1>" .
+					"<p>iRow is an online exercise logbook designed for the rowing community</p>" .
+					"<p>You have been invited to join in by " . $coach['name'] . "</p>" .
+					"<p>Click this link to open your invitation and setup your profile</p>" .
+					"<p><a href=\"".($link)."\">".htmlentities($link)."</a></p>" .
+					"<p>You have recieved this email on the behalf of another user of iRow</p>";
+
+			$this->load->library('email');
+			$this->email->initialize(array(
+				'mailtype'=>'html'
+				)
+			);
+			$this->email->to($emailto);
+			$this->email->from('support@irow.co.uk',$coach['name']);
+			$this->email->subject($title);
+			$this->email->message($body);
+
+			// log email
+			$log = array(
+				'user'=>$user,
+				'sentto'=>$emailto,
+				'subject'=>$title,
+				'text'=>$body
+			);
+			$this->db->insert('emails',$log);
+			if($this->email->send()) {
+				// email sent
+			
+				return TRUE;
+			} else {
+				// email not sent
+				$response = 'ER_EMAIL';
+				echo 'ER_EMAIL';
+				echo $this->email->print_debugger();
+			}
+		} else {
+			throw new Exception("No valid user found");
+			return FALSE;
+		}
+	}
+
+	function redeem_invitation($key) {
+		// find record
+		$this->db->where('key',$key);
+		$expiry = strtotime("-1 month");
+		$this->db->where('sent >=',date("Y-m-d H:i:s",$expiry));
+		$this->db->limit(1);
+		$query = $this->db->get('invitations');
+		if($query->num_rows() == 1) {
+			// invitation valid
+			$invitation = $query->row_array();
+			$update = array(
+				'email' => $invitation['emailto']
+				);
+			$this->db->where('id',$invitation['user']);
+			$this->db->limit(1);
+			$this->db->update('users',$update);
+			return $invitation['user'];
+		} else {
+			// invitation invalid
+			return FALSE;
+		}
+
+		return FALSE;
+		// TODO: Add cleanup
+	}
+
+	function change_status($id,$status) {
+		$this->db->where('value',$status);
+		$query = $this->db->get('users_setup_stages');
+		$row = $query->row_array();
+		$status_id= $row['id'];
+
+		$update = array('setup'=>$status_id);
+		$this->db->where('id',$id);
+		$this->db->limit(1);
+		return $this->db->update('users');
 	}
 }
