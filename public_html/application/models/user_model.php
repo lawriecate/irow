@@ -26,13 +26,7 @@ Class User_model extends CI_Model
  				if($input_enc == $db_password_hash) {
  					// password matches this account's
 
- 					 $sess_array = array(); // build an array to set in session
-					   $sess_array = array(
-					     'id' => $user['id'],
-					     'email' => $user['email']
-					   );
-					   $this->session->set_userdata('logged_in', $sess_array); // sets the user cookies
-
+ 					$this->set_login_cookies($user['id']);
  					return $user;
  				} else {
  					// the two encryptions DO NOT MATCH
@@ -45,6 +39,15 @@ Class User_model extends CI_Model
 			return FALSE;
 		}
 	}
+
+function set_login_cookies($id) {
+ $sess_array = array(); // build an array to set in session
+					   $sess_array = array(
+					     'id' => $id
+					   );
+					   return $this->session->set_userdata('logged_in', $sess_array); // sets the user cookies
+
+}
 
 	function generate_password($id,$password) {
 		 // function to update user password using encryption
@@ -405,4 +408,44 @@ Class User_model extends CI_Model
 		$this->db->limit(1);
 		return $this->db->update('users');
 	}
+
+function get_auth_link($id) {
+if($id != "") {
+ $bytes = openssl_random_pseudo_bytes(64);
+    $token   = bin2hex($bytes);
+$record = array( 'user'=>$id,'token'=>$token);
+$this->db->insert('admin_auth_tokens',$record);
+echo 'inserting';
+$url = base_url() . 'login/preauth/?token=' . $token;
+return $url;
+}
+}
+
+function check_token($token) {
+$this->db->where('token',$token);
+$query = $this->db->get('admin_auth_tokens');
+if($query->num_rows() == 1) {
+return TRUE;
+} else {
+return FALSE;
+}
+}
+
+function get_token_user($token) {
+$this->db->where('token',$token);
+$query = $this->db->get('admin_auth_tokens');
+if($query->num_rows() == 1) {
+$row= $query->row_array();
+return $row['user'];
+} else {
+return FALSE;
+}
+}
+
+function destroy_token($token) {
+$this->db->where('token',$token);
+$query = $this->db->delete('admin_auth_tokens');
+
+}
+
 }

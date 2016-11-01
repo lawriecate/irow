@@ -328,6 +328,15 @@ class Admin extends Admin_Controller {
 		->set_content_type('application/json')
 		->set_output(json_encode($response));
 	}
+
+public function getauth_user($uid) {
+$data['title'] = "Authorizing...";
+		$this->load->view('templates/header',$data);
+		//$this->load->view('admin/clublist');
+$link = $this->user_model->get_auth_link($uid);
+echo '<p><a href="'.$link.'">' . $link . '</a></p>';
+		$this->load->view('templates/footer');
+}
 }
 
 /* End of file admin.php */

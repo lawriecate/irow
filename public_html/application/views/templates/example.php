@@ -15,7 +15,7 @@
    } ?></h1>
         <p>A training diary that everyone can use!</p>
         <p><a href="<?= base_url() ?>register/" class="btn btn-primary btn-lg">Sign Up</a>
-      <a href="<?= base_url() ?>login/" class="btn btn-primary btn-lg">Log In</a></p>
+    <!--  <a href="<?= base_url() ?>login/" class="btn btn-primary btn-lg">Log In</a>--></p>
     </div>
     </div>
 
@@ -24,17 +24,17 @@
       <div class="row">
         <div class="col-lg-4">
           <h2>Track your training</h2>
-          <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-          <p><a class="btn btn-default" href="#">View details &raquo;</a></p>
+          <!--<p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>-->
+          <p><a class="btn btn-primary" href="<?=base_url()?>dashboard/">Athlete Log In &raquo;</a></p>
         </div>
         <div class="col-lg-4">
           <h2>Coach Features</h2>
-          <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-          <p><a class="btn btn-default" href="#">View details &raquo;</a></p>
+         <!-- <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>-->
+          <p><a class="btn btn-primary" href="<?=base_url()?>coach/log/">Coach Log In &raquo;</a></p>
        </div>
         <div class="col-lg-4">
-          <h2>Motivate and improve</h2>
+         <!-- <h2>Motivate and improve</h2>
           <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-          <p><a class="btn btn-default" href="#">View details &raquo;</a></p>
+          <p><a class="btn btn-default" href="#">View details &raquo;</a></p>-->
         </div>
       </div>

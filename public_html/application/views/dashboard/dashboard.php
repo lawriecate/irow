@@ -410,9 +410,9 @@ $.get('<?=base_url()?>dashboard/ajax_updatem?t=armspan&v=' + $("#saveMsArmSpan")
     /////         split calculator        /////////
 function time_to_seconds(a){parts=a.split(":");parts.reverse();total_seconds=raise60=0;for(var b in parts)seconds=parts[b]*Math.pow(60,raise60),total_seconds+=seconds,raise60++;return total_seconds}
 function outputSplit(init,longOutput) {
-hours = Math.floor(init / 3600);
-    minutes = Math.floor((init / 60) % 60);
-    seconds = init % 60;
+    minutes = Math.floor(init / 60);
+    seconds = init - (minutes * 60);
+   
 
     var pad=function(num,field){
         var n = '' + num;
@@ -422,28 +422,8 @@ hours = Math.floor(init / 3600);
         return field.substr(0,pad) + n;
     };
 
-    if(init.toString().indexOf(".") != -1) {
-      fractional =  init.toString().substr(init.toString().indexOf("."));
-    } else {
-      fractional = ".0";
-    }
-    
-    seconds = seconds.toString().substr(0,seconds.toString().indexOf("."));
-    combined_seconds =  pad(seconds,"0") + fractional.substr(0,2);
-    
-    if(seconds < 10) {
-      second_pad = "0";
-    } else {
-      second_pad = "";
-    }
 
-    pretty = minutes + ":" + second_pad + combined_seconds;
-
-    
-
-    if(longOutput == true) {
-      pretty = pad(hours,"0") + ":"  + (minutes) + ":" + combined_seconds;
-    }
+    pretty = minutes + ":" + seconds.toFixed(1);
 
     return pretty;
   }

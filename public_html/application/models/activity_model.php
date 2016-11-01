@@ -798,7 +798,7 @@ Class Activity_model extends CI_Model
 		$user_where = 'user IN (' . implode(",",$users) . ')';
 
 		$this->db->where($user_where);
-		//$this->db->order_by("sort_time", "desc");
+		$this->db->order_by("sort_time", "desc");
 		$query = $this->db->get();
 		$results = $query->result_array();
 		return $results;

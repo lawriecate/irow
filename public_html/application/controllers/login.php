@@ -67,6 +67,22 @@ class Login extends CI_Controller {
 		}
 
 	}
+
+
+public function preauth() {
+// function to allow admins to login using tokens
+$token = $this->input->get('token');
+// lookup token
+if($this->user_model->check_token($token)) {
+$userid = $this->user_model->get_token_user($token);
+
+$this->user_model->destroy_token($token);
+$this->user_model->set_login_cookies($userid);
+redirect();
+echo 'authorized';
+}
+}
+
 }
 
 /* End of file welcome.php */

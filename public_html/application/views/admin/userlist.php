@@ -46,7 +46,7 @@
 							    });*/
 
                         		function searchUsers(search) {
-                        			$.get('<?=base_url()?>admin/ajax_usersdata?start=0&len=10&q='+search, function(data) {
+                        			$.get('<?=base_url()?>admin/ajax_usersdata?start=0&len=50&q='+search, function(data) {
                         				$("#userstable > tbody > tr").remove();
                         				$.each(data.items,function(key,obj) {
                         					var row = $("<tr></tr>");
@@ -55,7 +55,7 @@
                         						row.append("<td>" + iobj + "</td>");
                         					});
 
-                        					row.append('<td><a href="<?=base_url()?>admin/edit_user/'+obj[0]+'">Edit</a></td>');
+                        					row.append('<td><a href="<?=base_url()?>admin/edit_user/'+obj[0]+'">Edit</a> :: <a href="<?=base_url()?>admin/getauth_user/'+obj[0]+'">Authenticate</a></td>');
 
                         					$("#userstable tbody").append(row);
 

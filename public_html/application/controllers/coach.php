@@ -264,17 +264,20 @@ class Coach extends Secure_Controller {
 	public function ajax_graphdata()
 	{
 		// javascript interface to output erg data in Google Data format
-		$me = $this->l_auth->current_user_id();
+		// if you ever need to understand/edit this, I'm truly sorry
+		$me = $this->l_auth->current_user_id(); // read in inputs
 		$distance = $this->input->get('distance');
 		$time = $this->input->get('time');
 		$typeRef = $this->input->get('type');
-		$graphs = $this->get_analyse_graphs();
-		$graph = $graphs[$typeRef];
-		$type = $this->activity_model->getTypeByID($this->activity_model->getTypeIDByRef($graph['type']));
-				//$type_filter = $this->input->get('type');
-		$people = explode(",",$this->input->get('who'));
+		$graphTypes = $this->get_analyse_graphs(); // get class defined graph types
 
-		$rstart = strtotime($this->input->get('start'));
+		$graph = $graphTypes[$typeRef]; // get an array of information for inputted graph type
+
+		$graphType = $this->activity_model->getTypeByID($this->activity_model->getTypeIDByRef($graph['type'])); // get information about the graph exercise type from db
+
+		$people = explode(",",$this->input->get('who')); // get a list of IDs inputted
+
+		$rstart = strtotime($this->input->get('start')); // create date start end range
 		$year = date("Y",$rstart);
 		$month = date("m",$rstart);
 		$day = date("d",$rstart);
@@ -292,9 +295,9 @@ class Coach extends Secure_Controller {
 
 		$valid = TRUE;
 
-		$valid_people = $this->activity_model->get_coaches_people($me,"");
+		$valid_people = $this->activity_model->get_coaches_people($me,""); // get all the people current user is authorized for access
 		
-		if(count($people) > 0) {
+		if(count($people) > 0) { // check validity of people entered
 			foreach($people as $person) {
 				$found = FALSE;
 				foreach($valid_people as $valid_person) {
@@ -311,52 +314,69 @@ class Coach extends Secure_Controller {
 		}
 
 		$response = array();
-		$response['cols'] = array(
+		$response['cols'] = array( // add date column
 				array('type'=>'date','label'=>'Date'),
 			);
-		foreach ($people as $key => $person) {
+		foreach ($people as $key => $person) { // add column for each person
 			$record= $this->user_model->get_by_id($person);
 			$name = $record['name'];
 			$response['cols'][] = array('type'=>'number','label'=>$name);
 		}
-		$response['rows'] = array();
+		$response['rows'] = array(); // build rows
 		if($valid == TRUE) {
 			//$response['people'] = $people;
 			$filter = array(
 				'sort_time >= ' => date("Y-m-d",$rstart),
 				'sort_time <= ' => date("Y-m-d",$rend),
-				'type' => $type['id']
+				'type' => $graphType['id']
 				);
-			
-			$activities = $this->activity_model->search_activities($filter,$people);
+if(isset($graph['distance']) ) {
+$filter = array_merge(array('total_distance'=>$graph['distance']),$filter);
+}
+if(isset($graph['time']) ) {
+$filter = array_merge(array('total_time'=>$graph['time']),$filter);
+}
+
+			$activities = $this->activity_model->search_activities($filter,$people); // get activities from db
+
 			$preprocess = array();
-			foreach($activities as $activity) {
-				$ts = strtotime($activity['sort_time']);
+			foreach($activities as $activity) { // loop through each activity
+		
+				$ts = date("Ymd",strtotime($activity['sort_time'])); // give Ymd timestamp to each activty
 
 				//$tooltip = '<div style="width:260px;max-height:400px;overflow:scroll" class="well"><h3>Activity Detail</h3><p>'.$activity['avg_split'].'</p></div>';
-				foreach ($people as $person) {
+
+				foreach ($people as $person) { // ensure a NULL row is included for each activity date
 					
-						//$preprocess[$ts][$person] = NULL;
-					
-				}
-				foreach ($people as $person) {
-					if($person == $activity['user']) {
-						$preprocess[$ts][$person] = $activity['avg_split'];
+					if($person == $activity['user']) { // if this person is on list
+						$preprocess[$ts][$activity['user']] = $activity['avg_split']; // add to preprocess
+					} else {
+						if(!isset($preprocess[$ts][$person]))  {
+							$preprocess[$ts][$person] = null; // if a value still hasn't been added, put in a null value
+						}
 					}
 				}
 				
 			}
 
-			$finalRows = array();
-			foreach($preprocess as $ts => $prerow) {
-				$date = "Date" . date("(Y,",$ts) . (date("m",$ts) - 1) . date(",d)",$ts);
+			$finalRows = array(); // build final rows
+
+			foreach($preprocess as $dateymd=> $prerow) {
+$ts = strtotime($dateymd);
+				$date = "Date" . date("(Y,",$ts) . (date("m",$ts) - 1) . date(",d)",$ts); // pretty date
 				$row = array(
-					array('v'=>$date)
+					array('v'=>$date) // add date to row
 				);
+
 				foreach($prerow as $person => $indscore) {
-					$row[]=array('v'=>$indscore,'f'=>$this->activity_model->outputSplit($indscore));
+					if($indscore == null ) { // score is null, set value to null
+$row[]=array('v'=>null);
+ 					} else {
+					$row[]=array('v'=>$indscore,'f'=>$this->activity_model->outputSplit($indscore)); // otherwise add score in seconds + pretty split
+					}
 				}
-				$finalRows[]=array('c'=>$row);
+
+				$finalRows[]=array('c'=>$row); // add row
 
 			}
 			$response['rows'] = $finalRows;
@@ -367,7 +387,9 @@ class Coach extends Secure_Controller {
 
 		$this->output
 			->set_content_type('application/json')
-			->set_output(json_encode($response));
+			->set_output(json_encode($response)); // output
+
+
 	}
 
 
